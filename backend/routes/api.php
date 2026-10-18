@@ -13,6 +13,7 @@ Route::prefix('v1')->group(function () {
 
         Route::get('profile', [ProfileController::class, 'show']);
         Route::patch('profile', [ProfileController::class, 'update']);
+        Route::put('profile/password', [ProfileController::class, 'updatePassword']);
     });
 
 });
