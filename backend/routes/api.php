@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\Admin\StatsController;
 use App\Http\Controllers\Api\V1\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\ProfileController;
@@ -22,7 +23,9 @@ Route::prefix('v1')->group(function () {
             Route::post('users/{user}/unblock', [AdminUserController::class, 'unblock']);
             Route::patch('users/{user}/role', [AdminUserController::class, 'updateRole']);
             Route::delete('users/{user}', [AdminUserController::class, 'destroy']);
+            Route::get('stats', [StatsController::class, 'index']);
         });
+
     });
 
 });
