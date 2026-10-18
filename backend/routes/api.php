@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -9,6 +10,9 @@ Route::prefix('v1')->group(function () {
 
     Route::middleware(['auth:sanctum', 'not.blocked'])->group(function () {
         Route::post('auth/logout', [AuthController::class, 'logout']);
+
+        Route::get('profile', [ProfileController::class, 'show']);
+        Route::patch('profile', [ProfileController::class, 'update']);
     });
 
 });

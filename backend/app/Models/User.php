@@ -2,11 +2,12 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -49,6 +50,24 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password'          => 'hashed',
         ];
+    }
+
+    protected function avatarUrl(): Attribute
+    {
+        // return Attribute::get(
+        //     fn(?string $value) => $value ? Storage::disk('public')->url($value) : null
+        // );
+
+        return Attribute::get(function (?string $value) {
+            if (! $value) {
+                return null;
+            }
+
+            /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+            $disk = Storage::disk('public');
+
+            return $disk->url($value);
+        });
     }
 
     public function isAdmin(): bool
