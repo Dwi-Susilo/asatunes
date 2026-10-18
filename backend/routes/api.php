@@ -18,6 +18,10 @@ Route::prefix('v1')->group(function () {
 
         Route::middleware('admin')->prefix('admin')->group(function () {
             Route::get('users', [AdminUserController::class, 'index']);
+            Route::post('users/{user}/block', [AdminUserController::class, 'block']);
+            Route::post('users/{user}/unblock', [AdminUserController::class, 'unblock']);
+            Route::patch('users/{user}/role', [AdminUserController::class, 'updateRole']);
+            Route::delete('users/{user}', [AdminUserController::class, 'destroy']);
         });
     });
 
