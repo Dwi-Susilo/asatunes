@@ -45,7 +45,8 @@ class Lyrics
             'duration'    => $duration,
         ]));
 
-        if ($response->status() === 404) {
+        if ($response->status() === 404 || $response->serverError()) {
+            // 404 = tidak ada; 5xx = /get sedang bermasalah, lanjut ke /search
             return null;
         }
 
