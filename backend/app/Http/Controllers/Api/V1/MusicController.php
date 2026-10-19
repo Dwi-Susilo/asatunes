@@ -3,12 +3,17 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Exceptions\YtDlpException;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ProxyAudioRequest;
 use App\Http\Requests\SearchMusicRequest;
 use App\Http\Requests\StreamMusicRequest;
 use App\Models\Song;
 use App\Services\YtDlp;
+use App\Support\GoogleVideoUrl;
+use GuzzleHttp\Client;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class MusicController extends Controller
 {
@@ -82,5 +87,87 @@ class MusicController extends Controller
 
             return [$known, $ytDlp->extractFromSearch("{$known->artist} {$known->title}")];
         }
+    }
+
+    public function proxyAudio(ProxyAudioRequest $request): JsonResponse | StreamedResponse
+    {
+        $url = $request->validated('url');
+
+        // Teruskan hanya header Range yang bentuknya wajar, misalnya "bytes=0-1023"
+        $headers = [];
+        $range   = $request->header('Range');
+
+        if (is_string($range) && preg_match('/^bytes=\d*-\d*$/', $range)) {
+            $headers['Range'] = $range;
+        }
+
+        try {
+            $upstream = (new Client())->request('GET', $url, [
+                'headers'         => $headers,
+                'stream'          => true,
+                'decode_content'  => false,
+                'http_errors'     => false,
+                'connect_timeout' => 10,
+                'timeout'         => 30,
+                'allow_redirects' => [
+                    'max'         => 3,
+                    'protocols'   => ['https'],
+                    // Setiap pengalihan juga harus tetap ke *.googlevideo.com
+                    'on_redirect' => function ($request, $response, $uri) {
+                        if (! GoogleVideoUrl::isValid((string) $uri)) {
+                            throw new \RuntimeException('Pengalihan ke host yang tidak diizinkan');
+                        }
+                    },
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('proxy-audio gagal', ['error' => $e->getMessage()]);
+
+            return $this->playbackError();
+        }
+
+        $status = $upstream->getStatusCode();
+
+        if (! in_array($status, [200, 206, 416], true)) {
+            Log::warning('proxy-audio: status tidak terduga dari sumber', ['status' => $status]);
+
+            return $this->playbackError();
+        }
+
+        $responseHeaders = array_filter([
+            'Content-Type'           => $upstream->getHeaderLine('Content-Type') ?: 'application/octet-stream',
+            'Content-Length'         => $upstream->getHeaderLine('Content-Length'),
+            'Content-Range'          => $upstream->getHeaderLine('Content-Range'),
+            'Accept-Ranges'          => 'bytes',
+            'Cache-Control'          => 'private',
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
+
+        $body = $upstream->getBody();
+
+        return response()->stream(function () use ($body) {
+            while (! $body->eof()) {
+                echo $body->read(8192);
+
+                if (ob_get_level() > 0) {
+                    ob_flush();
+                }
+                flush();
+
+                if (connection_aborted()) {
+                    break;
+                }
+            }
+
+            $body->close();
+        }, $status, $responseHeaders);
+    }
+
+    private function playbackError(): JsonResponse
+    {
+        return response()->json([
+            'status'  => 'error',
+            'message' => 'Lagu tidak dapat diputar saat ini.',
+        ], 502);
     }
 }
