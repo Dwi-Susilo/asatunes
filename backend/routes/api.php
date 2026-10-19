@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\Admin\StatsController;
 use App\Http\Controllers\Api\V1\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\MusicController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -16,6 +17,10 @@ Route::prefix('v1')->group(function () {
         Route::get('profile', [ProfileController::class, 'show']);
         Route::patch('profile', [ProfileController::class, 'update']);
         Route::put('profile/password', [ProfileController::class, 'updatePassword']);
+
+        Route::prefix('music')->group(function () {
+            Route::get('search', [MusicController::class, 'search'])->middleware('throttle:ytdlp');
+        });
 
         Route::middleware('admin')->prefix('admin')->group(function () {
             Route::get('users', [AdminUserController::class, 'index']);
