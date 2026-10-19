@@ -7,6 +7,7 @@ use App\Http\Requests\ProxyAudioRequest;
 use App\Http\Requests\SearchMusicRequest;
 use App\Http\Requests\StreamMusicRequest;
 use App\Models\Song;
+use App\Services\Trending;
 use App\Services\YtDlp;
 use App\Support\GoogleVideoUrl;
 use GuzzleHttp\Client;
@@ -169,5 +170,19 @@ class MusicController extends Controller
             'status'  => 'error',
             'message' => 'Lagu tidak dapat diputar saat ini.',
         ], 502);
+    }
+
+    public function trending(Trending $trending): JsonResponse
+    {
+        $songs = $trending->get();
+
+        if ($songs === null) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Data trending belum tersedia.',
+            ], 503);
+        }
+
+        return response()->json(['status' => 'success', 'data' => $songs]);
     }
 }
