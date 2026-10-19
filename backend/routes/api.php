@@ -20,6 +20,7 @@ Route::prefix('v1')->group(function () {
 
         Route::prefix('music')->group(function () {
             Route::get('search', [MusicController::class, 'search'])->middleware('throttle:ytdlp');
+            Route::get('stream', [MusicController::class, 'stream'])->middleware('throttle:ytdlp');
         });
 
         Route::middleware('admin')->prefix('admin')->group(function () {
