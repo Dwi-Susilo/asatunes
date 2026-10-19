@@ -3,10 +3,12 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Exceptions\YtDlpException;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\LyricsRequest;
 use App\Http\Requests\ProxyAudioRequest;
 use App\Http\Requests\SearchMusicRequest;
 use App\Http\Requests\StreamMusicRequest;
 use App\Models\Song;
+use App\Services\Lyrics;
 use App\Services\Trending;
 use App\Services\YtDlp;
 use App\Support\GoogleVideoUrl;
@@ -184,5 +186,29 @@ class MusicController extends Controller
         }
 
         return response()->json(['status' => 'success', 'data' => $songs]);
+    }
+
+    public function lyrics(LyricsRequest $request, Lyrics $lyrics): JsonResponse
+    {
+        try {
+            $result = $lyrics->find(
+                $request->validated('title'),
+                $request->validated('artist'),
+                $request->validated('duration'),
+            );
+        } catch (\RuntimeException $e) {
+            Log::warning('lyrics: LRCLIB bermasalah', ['error' => $e->getMessage()]);
+
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Layanan lirik sedang tidak tersedia.',
+            ], 502);
+        }
+
+        if ($result === null) {
+            return response()->json(['status' => 'error', 'message' => 'Lirik tidak ditemukan.'], 404);
+        }
+
+        return response()->json(['status' => 'success', 'data' => $result]);
     }
 }

@@ -23,6 +23,7 @@ Route::prefix('v1')->group(function () {
             Route::get('stream', [MusicController::class, 'stream'])->middleware('throttle:ytdlp');
             Route::get('proxy-audio', [MusicController::class, 'proxyAudio']);
             Route::get('trending', [MusicController::class, 'trending']);
+            Route::get('lyrics', [MusicController::class, 'lyrics']);
         });
 
         Route::middleware('admin')->prefix('admin')->group(function () {
