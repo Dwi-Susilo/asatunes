@@ -12,9 +12,28 @@ class Trending
     private const STALE   = 'trending:stale';   // cadangan tanpa kedaluwarsa
 
     /** Data terbaru; kalau cache habis, coba perbarui; kalau gagal, pakai cadangan lama. */
+    // public function get(): ?array
+    // {
+    //     return Cache::get(self::CURRENT) ?? $this->refresh() ?? Cache::get(self::STALE);
+    // }
     public function get(): ?array
     {
-        return Cache::get(self::CURRENT) ?? $this->refresh() ?? Cache::get(self::STALE);
+        $current = Cache::get(self::CURRENT);
+
+        if ($current !== null) {
+            return $current;
+        }
+
+        // Hanya satu percobaan perbarui per 10 menit; sisanya langsung pakai cadangan
+        if (Cache::add('trending:retry', true, now()->addMinutes(10))) {
+            $fresh = $this->refresh();
+
+            if ($fresh !== null) {
+                return $fresh;
+            }
+        }
+
+        return Cache::get(self::STALE);
     }
 
     /** Ambil dari YouTube dan simpan ke cache. Mengembalikan null kalau gagal. */
