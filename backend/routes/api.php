@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\FavoriteController;
 use App\Http\Controllers\Api\V1\MusicController;
 use App\Http\Controllers\Api\V1\PlaylistController;
+use App\Http\Controllers\Api\V1\PlaylistSongController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\SongPlayController;
 use Illuminate\Support\Facades\Route;
@@ -43,7 +44,14 @@ Route::prefix('v1')->group(function () {
             Route::delete('{song}', [FavoriteController::class, 'destroy'])->whereNumber('song');
         });
 
+        // Route::apiResource('playlists', PlaylistSongController::class)->whereNumber('playlist');
         Route::apiResource('playlists', PlaylistController::class)->whereNumber('playlist');
+        Route::post('playlists/{playlist}/songs', [PlaylistSongController::class, 'store'])
+            ->whereNumber('playlist');
+        Route::put('playlists/{playlist}/songs/order', [PlaylistSongController::class, 'reorder'])
+            ->whereNumber('playlist');
+        Route::delete('playlists/{playlist}/songs/{song}', [PlaylistSongController::class, 'destroy'])
+            ->whereNumber(['playlist', 'song']);
 
         Route::middleware('admin')->prefix('admin')->group(function () {
             Route::get('users', [AdminUserController::class, 'index']);
