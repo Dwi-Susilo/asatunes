@@ -1,12 +1,15 @@
 <?php
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Song extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'youtube_id', 'title', 'artist', 'album', 'thumbnail', 'duration_sec',
     ];
