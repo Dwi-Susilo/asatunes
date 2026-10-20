@@ -9,11 +9,13 @@ use App\Http\Requests\SearchMusicRequest;
 use App\Http\Requests\StreamMusicRequest;
 use App\Models\Song;
 use App\Services\Lyrics;
+use App\Services\SmartQueue;
 use App\Services\Trending;
 use App\Services\YtDlp;
 use App\Support\GoogleVideoUrl;
 use GuzzleHttp\Client;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -210,5 +212,21 @@ class MusicController extends Controller
         }
 
         return response()->json(['status' => 'success', 'data' => $result]);
+    }
+
+    public function recommendations(Request $request, string $youtubeId, SmartQueue $queue): JsonResponse
+    {
+        $seed = Song::where('youtube_id', $youtubeId)->first();
+
+        if (! $seed) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Lagu belum dikenal. Putar lagu ini terlebih dahulu.',
+            ], 404);
+        }
+
+        $limit = max(1, min(20, (int) $request->query('limit', 10)));
+
+        return response()->json(['status' => 'success', 'data' => $queue->for($seed, $limit)]);
     }
 }

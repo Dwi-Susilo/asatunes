@@ -24,6 +24,10 @@ Route::prefix('v1')->group(function () {
             Route::get('proxy-audio', [MusicController::class, 'proxyAudio']);
             Route::get('trending', [MusicController::class, 'trending']);
             Route::get('lyrics', [MusicController::class, 'lyrics']);
+
+            Route::get('{youtubeId}/recommendations', [MusicController::class, 'recommendations'])
+                ->where('youtubeId', '[A-Za-z0-9_-]{11}')
+                ->middleware('throttle:ytdlp');
         });
 
         Route::middleware('admin')->prefix('admin')->group(function () {
