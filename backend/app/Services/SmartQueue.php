@@ -3,12 +3,12 @@ namespace App\Services;
 
 use App\Exceptions\YtDlpException;
 use App\Models\Song;
+use App\Support\SongFilter;
 use Illuminate\Support\Facades\Cache;
 
 class SmartQueue
 {
     private const MIN_BEFORE_TRENDING = 3;
-    private const BAD_TITLE           = '/\b(karaoke|instrumental|backing track|cover|reaction|tutorial|full album|nonstop|non stop|kumpulan|playlist|compilation|slowed|sped up|nightcore|8d|1 hour)\b/iu';
 
     public function __construct(
         private YtDlp $ytDlp,
@@ -176,12 +176,7 @@ class SmartQueue
 
     private function acceptable(array $c): bool
     {
-        $d = (int) ($c['duration_sec'] ?? 0);
-
-        return $c['youtube_id'] !== ''
-        && $c['title'] !== ''
-        && $d >= 60 && $d <= 600
-        && ! preg_match(self::BAD_TITLE, $c['title']);
+        return SongFilter::acceptable($c);
     }
 
     /** Judul tanpa hiasan, untuk membandingkan "lagu yang sama". */

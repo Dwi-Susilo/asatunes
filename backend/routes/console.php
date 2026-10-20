@@ -9,3 +9,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('trending:refresh')->weeklyOn(1, '03:00'); // Senin 03:00
+Schedule::command('ytdlp:update')->weeklyOn(0, '03:30')->withoutOverlapping();

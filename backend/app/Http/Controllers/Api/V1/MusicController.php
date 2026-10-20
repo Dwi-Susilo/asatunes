@@ -13,6 +13,7 @@ use App\Services\SmartQueue;
 use App\Services\Trending;
 use App\Services\YtDlp;
 use App\Support\GoogleVideoUrl;
+use App\Support\SongFilter;
 use GuzzleHttp\Client;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -37,6 +38,8 @@ class MusicController extends Controller
                 Cache::put($key, $results, now()->addHour());
             }
         }
+
+        $results = array_values(array_filter($results, [SongFilter::class, 'acceptable']));
 
         return response()->json([
             'status' => 'success',
