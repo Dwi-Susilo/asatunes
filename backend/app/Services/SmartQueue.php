@@ -7,7 +7,8 @@ use Illuminate\Support\Facades\Cache;
 
 class SmartQueue
 {
-    private const BAD_TITLE = '/\b(karaoke|instrumental|backing track|cover|reaction|tutorial|full album|nonstop|non stop|kumpulan|playlist|compilation|slowed|sped up|nightcore|8d|1 hour)\b/iu';
+    private const MIN_BEFORE_TRENDING = 3;
+    private const BAD_TITLE           = '/\b(karaoke|instrumental|backing track|cover|reaction|tutorial|full album|nonstop|non stop|kumpulan|playlist|compilation|slowed|sped up|nightcore|8d|1 hour)\b/iu';
 
     public function __construct(
         private YtDlp $ytDlp,
@@ -47,7 +48,7 @@ class SmartQueue
 
         $queue = $this->pick($candidates, $seenIds, $seenTitles, $limit);
 
-        if (count($queue) < $limit) {
+        if (count($queue) < self::MIN_BEFORE_TRENDING) {
             $fallback = [];
 
             foreach ($this->trending->get() ?? [] as $t) {
