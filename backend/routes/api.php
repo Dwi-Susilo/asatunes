@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\V1\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\FavoriteController;
 use App\Http\Controllers\Api\V1\MusicController;
+use App\Http\Controllers\Api\V1\PlaylistController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\SongPlayController;
 use Illuminate\Support\Facades\Route;
@@ -41,6 +42,8 @@ Route::prefix('v1')->group(function () {
             Route::post('{song}', [FavoriteController::class, 'store'])->whereNumber('song');
             Route::delete('{song}', [FavoriteController::class, 'destroy'])->whereNumber('song');
         });
+
+        Route::apiResource('playlists', PlaylistController::class)->whereNumber('playlist');
 
         Route::middleware('admin')->prefix('admin')->group(function () {
             Route::get('users', [AdminUserController::class, 'index']);
