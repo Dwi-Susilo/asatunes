@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\Admin\StatsController;
 use App\Http\Controllers\Api\V1\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\FavoriteController;
 use App\Http\Controllers\Api\V1\MusicController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\SongPlayController;
@@ -33,6 +34,12 @@ Route::prefix('v1')->group(function () {
             Route::post('{song}/play', [SongPlayController::class, 'store'])
                 ->whereNumber('song')
                 ->middleware('throttle:play');
+        });
+
+        Route::prefix('favorites')->group(function () {
+            Route::get('/', [FavoriteController::class, 'index']);
+            Route::post('{song}', [FavoriteController::class, 'store'])->whereNumber('song');
+            Route::delete('{song}', [FavoriteController::class, 'destroy'])->whereNumber('song');
         });
 
         Route::middleware('admin')->prefix('admin')->group(function () {
