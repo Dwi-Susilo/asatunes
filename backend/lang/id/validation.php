@@ -1,0 +1,55 @@
+<?php
+
+return [
+    'required'         => ':Attribute wajib diisi.',
+    'string'           => ':Attribute harus berupa teks.',
+    'integer'          => ':Attribute harus berupa angka bulat.',
+    'array'            => ':Attribute harus berupa daftar.',
+    'email'            => ':Attribute harus berupa alamat email yang valid.',
+    'unique'           => ':Attribute sudah digunakan.',
+    'exists'           => ':Attribute yang dipilih tidak valid.',
+    'in'               => ':Attribute yang dipilih tidak valid.',
+    'distinct'         => ':Attribute memiliki nilai ganda.',
+    'different'        => ':Attribute dan :other harus berbeda.',
+    'confirmed'        => 'Konfirmasi :attribute tidak cocok.',
+    'regex'            => 'Format :attribute tidak valid.',
+    'image'            => ':Attribute harus berupa gambar.',
+    'mimes'            => ':Attribute harus berupa berkas bertipe: :values.',
+    'uploaded'         => ':Attribute gagal diunggah.',
+    'current_password' => 'Kata sandi saat ini salah.',
+
+    'max'              => [
+        'array'   => ':Attribute tidak boleh lebih dari :max item.',
+        'file'    => 'Ukuran :attribute tidak boleh lebih dari :max KB.',
+        'numeric' => ':Attribute tidak boleh lebih dari :max.',
+        'string'  => ':Attribute tidak boleh lebih dari :max karakter.',
+    ],
+    'min'              => [
+        'array'   => ':Attribute minimal :min item.',
+        'file'    => 'Ukuran :attribute minimal :min KB.',
+        'numeric' => ':Attribute minimal :min.',
+        'string'  => ':Attribute minimal :min karakter.',
+    ],
+
+    // Nama kolom yang ramah dibaca
+    'attributes'       => [
+        'name'             => 'nama',
+        'email'            => 'email',
+        'password'         => 'kata sandi',
+        'current_password' => 'kata sandi saat ini',
+        'avatar'           => 'foto profil',
+        'q'                => 'kata kunci pencarian',
+        'query'            => 'ID lagu',
+        'url'              => 'URL audio',
+        'title'            => 'judul',
+        'artist'           => 'artis',
+        'duration'         => 'durasi',
+        'description'      => 'deskripsi',
+        'listened_sec'     => 'lama mendengarkan',
+        'song_id'          => 'lagu',
+        'song_ids'         => 'daftar lagu',
+        'song_ids.*'       => 'lagu',
+        'role'             => 'peran',
+        'status'           => 'status',
+    ],
+];
