@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\V1\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\MusicController;
 use App\Http\Controllers\Api\V1\ProfileController;
+use App\Http\Controllers\Api\V1\SongPlayController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -28,6 +29,10 @@ Route::prefix('v1')->group(function () {
             Route::get('{youtubeId}/recommendations', [MusicController::class, 'recommendations'])
                 ->where('youtubeId', '[A-Za-z0-9_-]{11}')
                 ->middleware('throttle:ytdlp');
+
+            Route::post('{song}/play', [SongPlayController::class, 'store'])
+                ->whereNumber('song')
+                ->middleware('throttle:play');
         });
 
         Route::middleware('admin')->prefix('admin')->group(function () {
