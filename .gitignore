@@ -1,10 +1,9 @@
-cat << 'EOF' .gitignore
 # NODE / REACT
 node_modules/
 npm-debug.log
 build/
 
-# LARAVEL / PHP 
+# LARAVEL / PHP
 vendor/
 .env
 .env.backup
@@ -15,4 +14,3 @@ storage/*.key
 .idea/
 .DS_Store
 Thumbs.db
-EOF
