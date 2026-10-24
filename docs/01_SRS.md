@@ -5,6 +5,7 @@
 | :--- | :--- |
 | 1.0 | Rancangan awal: Spotify (metadata) + YouTube IFrame Player (audio) |
 | 1.1 | Pemutaran audio via ekstraksi yt-dlp; Spotify dihapus; metadata dari YouTube; Smart Queue berdasarkan artis/album (bukan judul); Trending di-cache 7 hari; identitas lagu diseragamkan ke `youtube_id`; endpoint yang kurang ditambahkan; sampul playlist dibuat otomatis dari cover lagu |
+| 1.1 (rev. 24 Okt 2026) | Penyesuaian dengan implementasi backend; lihat "Catatan Revisi" di akhir dokumen |
 
 ---
 
@@ -243,3 +244,21 @@
 - **Proxy Audio**: permintaan `proxy-audio` ke host selain `*.googlevideo.com` ditolak (HTTP 422/403).
 - **Trending**: saat API YouTube gagal, endpoint tetap mengembalikan data minggu sebelumnya.
 - **Antrean Otomatis**: semua lagu dalam respons rekomendasi berjudul berbeda (judul ternormalisasi), tidak memuat lagu yang sedang diputar, dan berasal dari artis (atau album) yang sama dengan lagu tersebut.
+
+---
+
+## Catatan Revisi (24 Oktober 2026)
+
+SRS v1.1 tetap berlaku dengan penyesuaian di bawah ini agar sesuai dengan implementasi backend (rincian lengkap di `02_API.md` v1.1). **Jika ada pertentangan dengan isi di atas, catatan ini yang berlaku.**
+
+1. **Pemutaran audio (mengganti 2.A langkah 3-4, 2.B, tabel bagian 6, dan bagian 4 poin 1):** endpoint `proxy-audio` dihapus. `GET /music/stream` mengembalikan `song_id`, `play_url`, dan `expires_at`. `play_url` adalah URL bertanda tangan ke `GET /music/audio/{song}`, berlaku 3 jam, terikat ke pengguna, tanpa header `Authorization`, dan mendukung `Range`. URL asli YouTube tidak dikirim ke klien.
+2. **Kriteria penerimaan pengganti "Proxy Audio" (7.5):** URL audio dengan tanda tangan salah, kedaluwarsa, atau milik pengguna yang diblokir atau dihapus ditolak dengan `403`.
+3. **Percobaan ulang (2.C poin 1):** pencarian ulang `ytsearch1:{artis} {judul}` hanya berlaku untuk lagu yang sudah tersimpan di database. Untuk lagu baru yang ekstraksinya gagal, kesalahan langsung dikembalikan ke klien.
+4. **Risiko baru (2.D):** pemegang `play_url` dapat memutar lagu tersebut sampai URL kedaluwarsa atau pemiliknya diblokir.
+5. **Reorder playlist (tabel bagian 6):** `PUT /playlists/{id}/songs/order` dengan body `{ "song_ids": [...] }`, menggantikan `PATCH /playlists/{id}/reorder`.
+6. **Pencarian (3.3):** hasil disaring berdasarkan durasi 60-600 detik, dan judul yang memuat kata seperti karaoke, instrumental, cover, full album, nonstop, kumpulan, playlist, slowed, atau nightcore disingkirkan (daftar ini berupa contoh, bukan daftar lengkap).
+7. **Smart Queue (3.3):** prioritas album hanya berlaku untuk lagu yang sudah tersimpan di database.
+8. **Tambahan:** maksimal 500 lagu per playlist; token perangkat lain dicabut saat password diganti; registrasi dibatasi 10 per menit per IP.
+9. **Jadwal:** `trending:refresh` Senin 03:00 UTC, `ytdlp:update` Minggu 03:30 UTC.
+
+**Keputusan terbuka:** `is_favorite` pada hasil pencarian/stream; format respons `429`; kriteria antrean terhadap fallback Trending; target waktu ekstraksi (5 detik vs sekitar 6 detik); jendela duplikat pemutaran (30 atau 60 detik); batas pencatatan tepat 30 detik (`>` atau `>=`).
