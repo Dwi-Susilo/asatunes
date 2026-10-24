@@ -7,6 +7,7 @@
 | 1.1 | Pemutaran audio via ekstraksi yt-dlp; Spotify dihapus; metadata dari YouTube; Smart Queue berdasarkan artis/album (bukan judul); Trending di-cache 7 hari; identitas lagu diseragamkan ke `youtube_id`; endpoint yang kurang ditambahkan; sampul playlist dibuat otomatis dari cover lagu |
 | 1.1 (rev. 24 Okt 2026) | Catatan revisi di akhir dokumen v1.1 agar sesuai dengan implementasi backend |
 | 1.2 | Disesuaikan dengan implementasi backend sampai Langkah 36 dan `02_API.md` v1.1: `proxy-audio` diganti URL audio bertanda tangan (`play_url`); reorder playlist memakai `PUT /playlists/{id}/songs/order`; pencarian disaring; Smart Queue disesuaikan; batas 500 lagu per playlist; tabel throttle lengkap; konvensi respons dan kode status; pembedaan objek Kandidat lagu dan Lagu; kriteria penerimaan diberi status pengujian; keputusan yang belum diambil dicatat di bagian 8 |
+| 1.2 (rev. 24 Okt 2026) | Butir bagian 9 dicocokkan dengan kode: daftar kata penyaring, kata normalisasi Smart Queue, kunci cache rekomendasi, kolom `users`, aturan register/login |
 
 ---
 
@@ -70,7 +71,7 @@ Bagian ini menggantikan "Aturan Proxy Audio" pada v1.1. Endpoint `proxy-audio?ur
 ## 3. Fitur Utama (Requirements)
 
 ### 1. Autentikasi & Profil Pengguna
-- **Pendaftaran & Login**: Register (`name`, `email`, `password`), Login (mendapatkan Bearer Token **Laravel Sanctum**). Pendaftaran tidak dapat menetapkan `role` atau `status`; akun baru selalu `user` dan `active`.
+- **Pendaftaran & Login**: Register (`name` wajib, maks. 100 karakter; `email` wajib, berformat email, maks. 255 karakter, unik; `password` wajib, minimal 6 karakter), Login (`email` dan `password` wajib; mendapatkan Bearer Token **Laravel Sanctum**). Pendaftaran tidak dapat menetapkan `role` atau `status`; akun baru selalu `user` dan `active`.
 - **Logout**: Mencabut token perangkat yang sedang dipakai (`POST /api/v1/auth/logout`).
 - **Kelola Profil**:
   - `GET /api/v1/profile`: detail profil beserta `avatar_url` (`null` bila belum ada foto).
@@ -87,7 +88,7 @@ Bagian ini menggantikan "Aturan Proxy Audio" pada v1.1. Endpoint `proxy-audio?ur
 - **Ringkasan Statistik Sistem**: `total_users`, `total_playlists`, dan `top_songs` (sampai 10 lagu yang pernah diputar, urut dari terbanyak, masing-masing dengan `plays_count`; dari `song_plays`). Hasil di-cache **10 menit**, sehingga angka bisa tertinggal.
 
 ### 3. Manajemen Musik
-- **Pencarian Musik**: via yt-dlp (`ytsearch10:`); parameter `q` wajib, 1-100 karakter. Hasil **disaring**: durasi 60 sampai 600 detik, dan judul yang memuat kata seperti karaoke, instrumental, cover, full album, nonstop, kumpulan, playlist, slowed, atau nightcore disingkirkan (daftar ini berupa contoh; daftar lengkap menyusul dari kode, lihat bagian 9). Karena penyaringan, jumlah hasil bisa kurang dari 10 bahkan kosong. Jika yt-dlp tidak tersedia, server menjawab `503`.
+- **Pencarian Musik**: via yt-dlp (`ytsearch10:`); parameter `q` wajib, 1-100 karakter. Hasil **disaring**: durasi 60 sampai 600 detik, dan judul yang memuat kata seperti karaoke, instrumental, cover, full album, nonstop, kumpulan, playlist, slowed, atau nightcore disingkirkan (daftar lengkap menurut kode: karaoke, instrumental, backing track, cover, reaction, tutorial, full album, nonstop, non stop, kumpulan, playlist, compilation, slowed, sped up, nightcore, 8d, 1 hour). Karena penyaringan, jumlah hasil bisa kurang dari 10 bahkan kosong. Jika yt-dlp tidak tersedia, server menjawab `503`.
 - **Trending**:
   - Data diambil dari YouTube Data API `videos.list` dengan `chart=mostPopular`, `videoCategoryId=10` (Musik), `regionCode=ID`, menghasilkan sampai 25 lagu berdurasi 60-600 detik.
   - Hasil di-cache **7 hari** dan diperbarui otomatis oleh Laravel Scheduler **seminggu sekali**, yaitu `trending:refresh` setiap Senin 03:00 UTC.
@@ -98,7 +99,7 @@ Bagian ini menggantikan "Aturan Proxy Audio" pada v1.1. Endpoint `proxy-audio?ur
   - Aturan penyaringan:
     1. Nama artis harus muncul pada channel/uploader atau judul hasil (membuang lagu artis lain).
     2. Buang lagu yang sedang diputar dan semua entri yang judul ternormalisasinya sama dengan lagu tersebut.
-    3. Setiap judul ternormalisasi hanya boleh muncul **sekali** di antrean, sehingga semua lagu dalam antrean berjudul berbeda. Normalisasi: huruf kecil, tanpa tanda baca, tanpa kata seperti "official", "video", "lyric", "lirik", "audio", "live", "remastered", "mv", "hd", "4k".
+    3. Setiap judul ternormalisasi hanya boleh muncul **sekali** di antrean, sehingga semua lagu dalam antrean berjudul berbeda. Normalisasi: huruf kecil, tanpa tanda baca, tanpa kata "official", "video", "audio", "music", "lyric"/"lyrics", "lirik", "mv", "hd", "live".
     4. Buang karaoke dan kompilasi; abaikan durasi di luar 60 detik sampai 10 menit.
   - Parameter `limit` opsional: 1-20, bawaan 10. Jumlah hasil bisa **kurang dari `limit`**.
   - Setiap entri memiliki kolom `source`: `album`, `artist`, atau `trending`.
@@ -157,6 +158,7 @@ Bagian ini menggantikan "Aturan Proxy Audio" pada v1.1. Endpoint `proxy-audio?ur
 - `avatar_url` (Varchar, Nullable)
 - `status` (Enum: `'active'`, `'blocked'`, Default: `'active'`)
 - `role` (Enum: `'admin'`, `'user'`, Default: `'user'`)
+- `email_verified_at` (Timestamp, Nullable; bawaan Laravel, belum dipakai) dan `remember_token` (bawaan Laravel, tidak dipakai API)
 - `created_at`, `updated_at`
 
 ### B. Tabel `songs` (Master Metadata Lagu)
@@ -311,11 +313,16 @@ Hal berikut belum diputuskan dan sengaja dibiarkan terbuka; dokumen ini tidak me
 ---
 
 ## 9. Catatan Verifikasi
-Butir berikut dibawa dari SRS v1.1 atau belum dicocokkan dengan kode, dan perlu dicek sebelum dokumen ini dianggap final:
+Status per 24 Oktober 2026, dicocokkan dengan kode backend.
 
-1. Daftar lengkap kata yang disingkirkan oleh penyaringan pencarian (bagian 3.3) menyusul dari kode; daftar di atas hanya contoh dari `02_API.md`.
-2. Kata-kata normalisasi judul pada Smart Queue (3.3) mengikuti rancangan v1.1 dan belum dicocokkan dengan `SmartQueue.php`.
-3. Cache hasil pencarian untuk query populer dan urutan pemanggilan LRCLIB (`/api/get` lalu fallback `/api/search`) mengikuti v1.1; belum tercantum di `02_API.md`.
-4. Apakah cache rekomendasi 12 jam berlaku per artis atau per lagu belum dipastikan.
-5. Objek User pada API memuat `email_verified_at`, yang tidak ada pada rancangan tabel `users` (5.A); perlu dicocokkan dengan migrasi.
-6. Aturan field pendaftaran dan login mengikuti v1.1; belum dicocokkan dengan bagian 4 `02_API.md`.
+**Sudah dicocokkan dan dikoreksi di dokumen ini**
+1. Daftar kata penyaring pencarian: lengkap di bagian 3.3 (dari `SongFilter.php`).
+2. Kata normalisasi judul Smart Queue: dari `SmartQueue.php` baris 193. Kode memuat "music" dan "lyrics", dan **tidak** memuat "remastered" dan "4k"; bagian 3.3 sudah disesuaikan.
+3. Kunci cache rekomendasi adalah `queue:{youtube_id}:{limit}`: cache **per lagu dan per `limit`**, bukan per artis. Dua lagu dari artis yang sama punya cache terpisah.
+4. Tabel `users` memuat `email_verified_at` dan `remember_token` (bawaan Laravel); bagian 5.A sudah diperbarui.
+5. Aturan field register dan login dicocokkan dengan `RegisterRequest` dan `LoginRequest`; bagian 3.1 sudah diperbarui.
+
+**Masih perlu dicek**
+1. Normalisasi judul "huruf kecil, tanpa tanda baca" (bagian 3.3) belum dilihat langsung di kode; hanya baris penghapus kata yang sudah dicocokkan.
+2. Cache hasil pencarian untuk query populer: belum dicek di kode dan tidak tercantum di `02_API.md`.
+3. Urutan pemanggilan LRCLIB (`/api/get` lalu `/api/search`): disebut v1.1; perlu dicek ulang di `Lyrics.php` bila ingin dipastikan.
