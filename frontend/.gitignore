@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+# Variabel lingkungan (hanya .env.example yang boleh masuk repo)
+.env
+.env.*
+!.env.example
