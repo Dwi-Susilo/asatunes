@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { api, setUnauthorizedHandler } from '../lib/api.js'
 import { tokenStorage } from '../lib/tokenStorage.js'
+import { usePlayerStore } from './playerStore.js'
 
 export const useAuthStore = create((set, get) => ({
   token: tokenStorage.get(),
@@ -41,6 +42,7 @@ export const useAuthStore = create((set, get) => ({
 
   clearSession() {
     tokenStorage.clear()
+    usePlayerStore.getState().clear() // antrean tidak boleh diwarisi pengguna berikutnya
     set({ token: null, user: null })
   },
 }))
