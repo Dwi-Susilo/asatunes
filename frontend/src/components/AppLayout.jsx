@@ -5,10 +5,11 @@ import { usePlayerStore } from '../store/playerStore.js'
 import AudioPlayer from './AudioPlayer.jsx'
 import PlayerBar from './PlayerBar.jsx'
 
-// Menu bertambah seiring langkah: Favorit (41), Playlist (42), dst.
+// Menu bertambah seiring langkah: Playlist (42), dst.
 const NAV_ITEMS = [
   { to: '/', label: 'Beranda' },
   { to: '/cari', label: 'Cari' },
+  { to: '/favorit', label: 'Favorit' },
 ]
 
 export default function AppLayout() {

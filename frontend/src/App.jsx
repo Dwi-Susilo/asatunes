@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import AppLayout from './components/AppLayout.jsx'
 import GuestRoute from './components/GuestRoute.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
+import FavoritesPage from './pages/FavoritesPage.jsx'
 import HomePage from './pages/HomePage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
 import RegisterPage from './pages/RegisterPage.jsx'
@@ -20,6 +21,7 @@ export default function App() {
           <Route element={<AppLayout />}>
             <Route path="/" element={<HomePage />} />
             <Route path="/cari" element={<SearchPage />} />
+            <Route path="/favorit" element={<FavoritesPage />} />
           </Route>
         </Route>
 
