@@ -6,3 +6,10 @@ export async function fetchStream(youtubeId, signal) {
   const res = await api.get(`/music/stream?query=${encodeURIComponent(youtubeId)}`, { signal })
   return res.data
 }
+
+// GET /music/trending (02_API.md 6.4). Daftar Kandidat lagu (tanpa `id`), sampai 25.
+// 503 "Data trending belum tersedia." dilempar sebagai ApiError.
+export async function fetchTrending(signal) {
+  const res = await api.get('/music/trending', { signal })
+  return res.data
+}
