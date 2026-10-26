@@ -5,6 +5,8 @@ import { ApiError } from './api.js'
 // kecuali untuk menampilkan pesan server apa adanya kepada pengguna.
 export function describeError(err) {
   if (!(err instanceof ApiError)) {
+    // Jangan sembunyikan penyebab aslinya: catat di Console supaya bisa dilacak.
+    console.error('Error tak terduga (bukan ApiError):', err)
     return { message: 'Terjadi kesalahan tak terduga.', fields: {} }
   }
 

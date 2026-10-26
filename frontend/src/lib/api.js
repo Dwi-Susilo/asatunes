@@ -59,7 +59,16 @@ async function request(path, { method = 'GET', body, auth = true, signal } = {})
     json = null
   }
 
-  if (res.ok) return json
+  if (res.ok) {
+    // Semua endpoint di 02_API.md menjawab JSON. 2xx tanpa JSON berarti yang
+    // menjawab bukan backend kita (atau backend salah konfigurasi): jangan
+    // diteruskan sebagai "sukses" karena pemanggil akan membaca res.data dan meledak.
+    if (json === null && res.status !== 204) {
+      console.error(`Respons ${res.status} dari ${method} ${path} bukan JSON.`)
+      throw new ApiError('Respons server tidak valid.', { status: res.status })
+    }
+    return json
+  }
 
   // 401 pada endpoint terproteksi = token tidak berlaku: bersihkan sesi.
   // Endpoint login/register memakai auth:false, jadi 401 di sana hanya
