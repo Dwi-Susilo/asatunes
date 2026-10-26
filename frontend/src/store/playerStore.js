@@ -21,11 +21,32 @@ function buildOrder(n, currentIdx, shuffle) {
 
 const REPEAT_CYCLE = { off: 'all', all: 'one', one: 'off' }
 
-const emptyState = { queue: [], order: [], pos: 0, isPlaying: false }
+// `nonce` naik setiap lagu aktif berganti atau perlu dimuat ulang; AudioPlayer
+// memakainya sebagai pemicu. `status`: 'idle' | 'loading' | 'ready' | 'error'.
+// `songId` diisi AudioPlayer dari GET /music/stream (dipakai pencatat pemutaran, 38c).
+const emptyState = {
+  queue: [],
+  order: [],
+  pos: 0,
+  isPlaying: false,
+  nonce: 0,
+  status: 'idle',
+  songId: null,
+  notice: '',
+}
+
+const trackChange = (s) => ({
+  isPlaying: true,
+  nonce: s.nonce + 1,
+  status: 'idle',
+  songId: null,
+})
+
+let noticeTimer
 
 // Item antrean = Kandidat lagu (02_API.md bagian 2): youtube_id, title, artist,
 // thumbnail, duration_sec. song_id sengaja tidak di sini; ia didapat dari
-// GET /music/stream saat lagu diputar (Langkah 38b).
+// GET /music/stream saat lagu diputar.
 export const usePlayerStore = create((set, get) => ({
   ...emptyState,
   shuffle: false,
@@ -34,11 +55,11 @@ export const usePlayerStore = create((set, get) => ({
   playQueue(items, startIndex = 0) {
     if (!items.length) return
     const idx = Math.min(Math.max(startIndex, 0), items.length - 1)
-    set({
+    set((s) => ({
       queue: items,
-      ...buildOrder(items.length, idx, get().shuffle),
-      isPlaying: true,
-    })
+      ...buildOrder(items.length, idx, s.shuffle),
+      ...trackChange(s),
+    }))
   },
 
   // Mengembalikan true bila pindah lagu. Di ujung antrean dengan repeat 'off',
@@ -47,11 +68,11 @@ export const usePlayerStore = create((set, get) => ({
     const { order, pos, repeat } = get()
     if (!order.length) return false
     if (pos < order.length - 1) {
-      set({ pos: pos + 1, isPlaying: true })
+      set((s) => ({ pos: pos + 1, ...trackChange(s) }))
       return true
     }
     if (repeat === 'all') {
-      set({ pos: 0, isPlaying: true })
+      set((s) => ({ pos: 0, ...trackChange(s) }))
       return true
     }
     return false
@@ -61,11 +82,11 @@ export const usePlayerStore = create((set, get) => ({
     const { order, pos, repeat } = get()
     if (!order.length) return false
     if (pos > 0) {
-      set({ pos: pos - 1, isPlaying: true })
+      set((s) => ({ pos: pos - 1, ...trackChange(s) }))
       return true
     }
     if (repeat === 'all') {
-      set({ pos: order.length - 1, isPlaying: true })
+      set((s) => ({ pos: order.length - 1, ...trackChange(s) }))
       return true
     }
     return false
@@ -92,6 +113,13 @@ export const usePlayerStore = create((set, get) => ({
   togglePlaying() {
     const { queue, isPlaying } = get()
     if (queue.length) set({ isPlaying: !isPlaying })
+  },
+
+  // Pesan singkat (toast) yang hilang sendiri setelah 4 detik.
+  notify(message) {
+    clearTimeout(noticeTimer)
+    set({ notice: message })
+    noticeTimer = setTimeout(() => set({ notice: '' }), 4000)
   },
 
   clear() {

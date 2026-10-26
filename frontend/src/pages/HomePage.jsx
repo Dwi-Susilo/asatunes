@@ -2,7 +2,7 @@ import { useAuthStore } from '../store/authStore.js'
 import { usePlayerStore } from '../store/playerStore.js'
 
 // SEMENTARA (dihapus di Langkah 39): data contoh untuk menguji pemutar.
-// Lagu pertama dari contoh di 02_API.md; dua lainnya hanya data palsu.
+// Lagu pertama nyata (contoh di 02_API.md); dua lainnya ID palsu yang pasti gagal.
 const DEMO_QUEUE = [
   {
     youtube_id: '_N6vSc_mT6I',
@@ -31,15 +31,25 @@ export default function HomePage() {
       <section className="rounded-lg border border-dashed border-zinc-700 p-4">
         <h2 className="mb-1 font-medium">Uji pemutar (sementara)</h2>
         <p className="mb-3 text-sm text-zinc-400">
-          Memuat antrean berisi 3 lagu contoh. Belum ada suara; itu di Langkah 38b.
+          Lagu pertama nyata (Tulus); dua lainnya palsu dan harus gagal. Lagu baru butuh sekitar 6
+          detik untuk dimuat.
         </p>
-        <button
-          type="button"
-          onClick={() => playQueue(DEMO_QUEUE, 0)}
-          className="rounded-md bg-emerald-500 px-4 py-2 font-medium text-zinc-950 hover:bg-emerald-400"
-        >
-          Muat antrean contoh
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => playQueue(DEMO_QUEUE, 0)}
+            className="rounded-md bg-emerald-500 px-4 py-2 font-medium text-zinc-950 hover:bg-emerald-400"
+          >
+            Muat antrean contoh
+          </button>
+          <button
+            type="button"
+            onClick={() => playQueue(DEMO_QUEUE, 1)}
+            className="rounded-md border border-zinc-700 px-4 py-2 hover:bg-zinc-800"
+          >
+            Mulai dari lagu palsu (uji auto-skip)
+          </button>
+        </div>
       </section>
     </div>
   )

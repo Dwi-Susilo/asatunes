@@ -11,6 +11,8 @@ const REPEAT_LABEL = {
 export default function PlayerBar() {
   const current = usePlayerStore((s) => s.queue[s.order[s.pos]])
   const isPlaying = usePlayerStore((s) => s.isPlaying)
+  const status = usePlayerStore((s) => s.status)
+  const notice = usePlayerStore((s) => s.notice)
   const shuffle = usePlayerStore((s) => s.shuffle)
   const repeat = usePlayerStore((s) => s.repeat)
   const togglePlaying = usePlayerStore((s) => s.togglePlaying)
@@ -25,12 +27,19 @@ export default function PlayerBar() {
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-10 border-t border-zinc-800 bg-zinc-900/95 backdrop-blur">
+      {notice && (
+        <p role="status" className="bg-red-950 px-3 py-1 text-center text-sm text-red-300">
+          {notice}
+        </p>
+      )}
       <div className="mx-auto flex max-w-5xl items-center gap-3 px-3 py-2">
         <Cover song={current} className="h-12 w-12" />
 
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium text-zinc-100">{current.title}</p>
-          <p className="truncate text-xs text-zinc-400">{current.artist}</p>
+          <p className="truncate text-xs text-zinc-400">
+            {status === 'loading' ? 'Memuat…' : current.artist}
+          </p>
         </div>
 
         <div className="flex items-center gap-1 text-zinc-300">

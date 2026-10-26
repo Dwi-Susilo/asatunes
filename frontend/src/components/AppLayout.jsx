@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore.js'
 import { usePlayerStore } from '../store/playerStore.js'
+import AudioPlayer from './AudioPlayer.jsx'
 import PlayerBar from './PlayerBar.jsx'
 
 // Menu bertambah seiring langkah: Pencarian (39), Favorit (41), Playlist (42), dst.
@@ -71,6 +72,7 @@ export default function AppLayout() {
         <Outlet />
       </main>
 
+      <AudioPlayer />
       <PlayerBar />
     </div>
   )
