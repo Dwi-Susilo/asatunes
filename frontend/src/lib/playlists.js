@@ -7,6 +7,13 @@ export async function fetchPlaylists(signal) {
   return { items: res.data, lastPage: res.meta?.last_page ?? 1 }
 }
 
+// GET /playlists/{id}: Playlist + `songs` (daftar Lagu berurutan) di dalam `data`.
+// 403 = bukan pemilik, 404 = tidak ada (dilempar sebagai ApiError).
+export async function fetchPlaylist(id, signal) {
+  const res = await api.get(`/playlists/${id}`, { signal })
+  return res.data
+}
+
 // POST /playlists -> 201, data: Playlist baru.
 export async function createPlaylist({ title, description }) {
   const res = await api.post('/playlists', { title, description })
@@ -22,4 +29,9 @@ export async function updatePlaylist(id, { title, description }) {
 // DELETE /playlists/{id} -> 200. Lagunya sendiri tidak ikut terhapus.
 export function deletePlaylist(id) {
   return api.delete(`/playlists/${id}`)
+}
+
+// DELETE /playlists/{id}/songs/{song_id} -> 200 (juga bila sudah tidak ada).
+export function removeSongFromPlaylist(id, songId) {
+  return api.delete(`/playlists/${id}/songs/${songId}`)
 }

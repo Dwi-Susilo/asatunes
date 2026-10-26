@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import ErrorNotice from '../components/ErrorNotice.jsx'
 import PlaylistCover from '../components/PlaylistCover.jsx'
 import PlaylistForm from '../components/PlaylistForm.jsx'
@@ -78,9 +79,13 @@ export default function PlaylistsPage() {
               />
             ) : (
               <div className="flex gap-3">
-                <PlaylistCover thumbnails={p.cover_thumbnails} className="h-24 w-24" />
+                <Link to={`/playlist/${p.id}`} aria-label={`Buka ${p.title}`}>
+                  <PlaylistCover thumbnails={p.cover_thumbnails} className="h-24 w-24" />
+                </Link>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium">{p.title}</p>
+                  <Link to={`/playlist/${p.id}`} className="block truncate font-medium hover:text-emerald-400">
+                    {p.title}
+                  </Link>
                   <p className="text-xs text-zinc-400">{p.songs_count} lagu</p>
                   {p.description && (
                     <p className="mt-1 line-clamp-2 text-xs text-zinc-500">{p.description}</p>
@@ -110,9 +115,7 @@ export default function PlaylistsPage() {
       </ul>
 
       {hasMorePages && (
-        <p className="text-sm text-zinc-500">
-          Hanya 50 playlist pertama yang ditampilkan.
-        </p>
+        <p className="text-sm text-zinc-500">Hanya 50 playlist pertama yang ditampilkan.</p>
       )}
     </div>
   )

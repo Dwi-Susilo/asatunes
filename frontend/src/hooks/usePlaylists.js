@@ -15,7 +15,11 @@ export function usePlaylists() {
     retry: false,
   })
 
-  const refresh = () => queryClient.invalidateQueries({ queryKey: key })
+  // Daftar dan semua detail playlist (kunci ['playlist', userId, id]) disegarkan bersama.
+  const refresh = () => {
+    queryClient.invalidateQueries({ queryKey: key })
+    queryClient.invalidateQueries({ queryKey: ['playlist', userId] })
+  }
 
   const create = useMutation({ mutationFn: createPlaylist, onSuccess: refresh })
   const update = useMutation({
