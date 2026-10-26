@@ -23,7 +23,8 @@ const REPEAT_CYCLE = { off: 'all', all: 'one', one: 'off' }
 
 // `nonce` naik setiap lagu aktif berganti atau perlu dimuat ulang; AudioPlayer
 // memakainya sebagai pemicu. `status`: 'idle' | 'loading' | 'ready' | 'error'.
-// `songId` diisi AudioPlayer dari GET /music/stream (dipakai pencatat pemutaran, 38c).
+// `songId` diisi AudioPlayer dari GET /music/stream.
+// `time` dan `duration` (detik) diisi AudioPlayer dari elemen audio.
 const emptyState = {
   queue: [],
   order: [],
@@ -32,6 +33,8 @@ const emptyState = {
   nonce: 0,
   status: 'idle',
   songId: null,
+  time: 0,
+  duration: 0,
   notice: '',
 }
 
@@ -40,6 +43,8 @@ const trackChange = (s) => ({
   nonce: s.nonce + 1,
   status: 'idle',
   songId: null,
+  time: 0,
+  duration: 0,
 })
 
 let noticeTimer

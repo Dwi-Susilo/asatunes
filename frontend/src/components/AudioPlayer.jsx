@@ -1,9 +1,42 @@
 import { useEffect, useRef } from 'react'
+import { api } from '../lib/api.js'
+import { setAudioElement } from '../lib/audioRef.js'
 import { fetchStream } from '../lib/music.js'
+import { useAuthStore } from '../store/authStore.js'
 import { usePlayerStore } from '../store/playerStore.js'
+import MediaSessionSync from './MediaSessionSync.jsx'
 
 const DEBOUNCE_MS = 250 // meredam klik "berikutnya" beruntun (pembatas yt-dlp: 20 per menit)
 const MAX_RELOADS = 1 // 02_API.md 6.3: gagal -> panggil stream lagi, sekali saja
+const MIN_LISTEN_SEC = 30 // SRS 3.3: kurang dari ini tidak dicatat, jadi tidak usah dikirim
+
+// Pencatat waktu mendengar: berapa lama audio benar-benar berbunyi (bukan posisi).
+function startListen(l) {
+  if (l.since === null) l.since = Date.now()
+}
+
+function stopListen(l) {
+  if (l.since !== null) {
+    l.ms += Date.now() - l.since
+    l.since = null
+  }
+}
+
+// POST /music/{song_id}/play (02_API.md 6.7). Kegagalan diabaikan: pencatatan
+// bukan alasan mengganggu pemutaran. 200 counted:false (duplicate) itu wajar.
+async function reportListen(l) {
+  stopListen(l)
+  const songId = l.songId
+  const sec = Math.floor(l.ms / 1000)
+  l.ms = 0
+  if (!songId || sec < MIN_LISTEN_SEC) return
+  if (!useAuthStore.getState().token) return // sudah keluar: jangan kirim tanpa token
+  try {
+    await api.post(`/music/${songId}/play`, { listened_sec: Math.min(sec, 86400) })
+  } catch {
+    /* diabaikan */
+  }
+}
 
 function playAudio(audio) {
   audio.play().catch((err) => {
@@ -29,15 +62,25 @@ export default function AudioPlayer() {
     failStreak: 0,
     queueRef: null,
   })
+  const listen = useRef({ ms: 0, since: null, songId: null })
+
+  useEffect(() => {
+    setAudioElement(audioRef.current)
+    return () => setAudioElement(null)
+  }, [])
 
   // Efek 1: setiap lagu aktif berganti (atau dimuat ulang lewat nonce), ambil play_url baru.
   useEffect(() => {
     const audio = audioRef.current
     const st = session.current
+    const l = listen.current
     const player = usePlayerStore
 
     st.ready = false
     st.expiresAt = 0
+    l.ms = 0
+    l.since = null
+    l.songId = null
     audio.pause() // hentikan lagu sebelumnya selagi lagu baru dimuat
 
     if (!youtubeId) {
@@ -52,7 +95,7 @@ export default function AudioPlayer() {
       st.failStreak = 0
     }
     st.reloads = 0
-    player.setState({ status: 'loading', songId: null })
+    player.setState({ status: 'loading', songId: null, time: 0, duration: 0 })
 
     const controller = new AbortController()
 
@@ -60,6 +103,7 @@ export default function AudioPlayer() {
       if (controller.signal.aborted) return
       st.expiresAt = Date.parse(data.expires_at)
       st.ready = true
+      l.songId = data.song_id
       audio.src = data.play_url // apa adanya: jangan ubah host, jalur, atau parameter
       player.setState({ songId: data.song_id })
       if (player.getState().isPlaying) playAudio(audio)
@@ -91,6 +135,7 @@ export default function AudioPlayer() {
     const onError = () => {
       if (!st.ready) return
       st.ready = false
+      stopListen(l)
       if (st.reloads < MAX_RELOADS) {
         st.reloads += 1
         player.setState({ status: 'loading' })
@@ -100,16 +145,29 @@ export default function AudioPlayer() {
       fail({ status: 502 })
     }
     const onCanPlay = () => player.setState({ status: 'ready' })
-    const onWaiting = () => player.setState({ status: 'loading' })
+    const onWaiting = () => {
+      stopListen(l)
+      player.setState({ status: 'loading' })
+    }
     const onPlaying = () => {
       st.failStreak = 0
+      startListen(l)
       player.setState({ status: 'ready' })
+    }
+    const onPause = () => stopListen(l)
+    const onTimeUpdate = () => player.setState({ time: audio.currentTime })
+    const onDuration = () => {
+      const d = audio.duration
+      player.setState({ duration: Number.isFinite(d) ? d : 0 })
     }
 
     audio.addEventListener('error', onError)
     audio.addEventListener('canplay', onCanPlay)
     audio.addEventListener('waiting', onWaiting)
     audio.addEventListener('playing', onPlaying)
+    audio.addEventListener('pause', onPause)
+    audio.addEventListener('timeupdate', onTimeUpdate)
+    audio.addEventListener('durationchange', onDuration)
 
     const timer = setTimeout(() => {
       fetchStream(youtubeId, controller.signal).then(attach).catch(fail)
@@ -118,10 +176,14 @@ export default function AudioPlayer() {
     return () => {
       clearTimeout(timer)
       controller.abort()
+      reportListen(l) // laporkan lagu yang baru ditinggalkan (kalau sudah 30 detik atau lebih)
       audio.removeEventListener('error', onError)
       audio.removeEventListener('canplay', onCanPlay)
       audio.removeEventListener('waiting', onWaiting)
       audio.removeEventListener('playing', onPlaying)
+      audio.removeEventListener('pause', onPause)
+      audio.removeEventListener('timeupdate', onTimeUpdate)
+      audio.removeEventListener('durationchange', onDuration)
     }
     // nonce hanya pemicu muat ulang (lagu sama dipilih lagi, kedaluwarsa, coba lagi).
   }, [youtubeId, nonce])
@@ -150,12 +212,25 @@ export default function AudioPlayer() {
     }
   }, [isPlaying])
 
+  // Lagu selesai: catat, lalu ulang (repeat 'one') atau lanjut ke lagu berikutnya.
+  function handleEnded() {
+    const player = usePlayerStore.getState()
+    const audio = audioRef.current
+    reportListen(listen.current)
+
+    if (player.repeat === 'one') {
+      audio.currentTime = 0
+      playAudio(audio)
+      return
+    }
+    // next() melingkar bila repeat 'all'; di ujung antrean (repeat mati) berhenti.
+    if (!player.next()) player.setPlaying(false)
+  }
+
   return (
-    <audio
-      ref={audioRef}
-      preload="auto"
-      // 38b: lagu selesai -> kembali ke ikon putar. Auto-next dibuat di 38c.
-      onEnded={() => usePlayerStore.getState().setPlaying(false)}
-    />
+    <>
+      <audio ref={audioRef} preload="auto" onEnded={handleEnded} />
+      <MediaSessionSync />
+    </>
   )
 }
