@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { previousOrRestart } from '../lib/audioRef.js'
 import { usePlayerStore } from '../store/playerStore.js'
 import Cover from './Cover.jsx'
+import HeartButton from './HeartButton.jsx'
 import {
   LyricsIcon,
   NextIcon,
@@ -60,6 +61,7 @@ export default function PlayerBar() {
             </div>
 
             <div className="flex items-center gap-1 text-zinc-300">
+              <HeartButton />
               <button
                 type="button"
                 onClick={() => setShowLyrics((v) => !v)}
