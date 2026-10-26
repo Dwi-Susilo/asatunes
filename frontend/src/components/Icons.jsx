@@ -41,3 +41,9 @@ export const RepeatIcon = (props) => (
     <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z" />
   </Svg>
 )
+
+export const LyricsIcon = (props) => (
+  <Svg {...props}>
+    <path d="M4 5h16v2H4zM4 9h16v2H4zM4 13h10v2H4zM4 17h7v2H4z" />
+  </Svg>
+)
