@@ -23,15 +23,17 @@ export default function SongList({ songs, onPlay }) {
                 {active && isPlaying ? '♪' : i + 1}
               </span>
               <Cover song={song} className="h-10 w-10" />
-              <span className="min-w-0 flex-1">
+              <span className="min-w-0 flex-1 text-left">
                 <span
-                  className={`block truncate text-sm font-medium ${
+                  className={`block truncate text-left text-sm font-medium ${
                     active ? 'text-emerald-400' : 'text-zinc-100'
                   }`}
                 >
                   {song.title}
                 </span>
-                <span className="block truncate text-xs text-zinc-400">{song.artist}</span>
+                <span className="block truncate text-left text-xs text-zinc-400">
+                  {song.artist}
+                </span>
               </span>
               <span className="text-xs tabular-nums text-zinc-500">
                 {formatDuration(song.duration_sec)}

@@ -13,3 +13,10 @@ export async function fetchTrending(signal) {
   const res = await api.get('/music/trending', { signal })
   return res.data
 }
+
+// GET /music/search?q= (02_API.md 6.1). Daftar Kandidat lagu yang sudah disaring
+// server; bisa kurang dari 10 atau kosong. 503 = yt-dlp tidak tersedia.
+export async function searchSongs(q, signal) {
+  const res = await api.get(`/music/search?q=${encodeURIComponent(q)}`, { signal })
+  return res.data
+}

@@ -5,8 +5,11 @@ import { usePlayerStore } from '../store/playerStore.js'
 import AudioPlayer from './AudioPlayer.jsx'
 import PlayerBar from './PlayerBar.jsx'
 
-// Menu bertambah seiring langkah: Pencarian (39), Favorit (41), Playlist (42), dst.
-const NAV_ITEMS = [{ to: '/', label: 'Beranda' }]
+// Menu bertambah seiring langkah: Favorit (41), Playlist (42), dst.
+const NAV_ITEMS = [
+  { to: '/', label: 'Beranda' },
+  { to: '/cari', label: 'Cari' },
+]
 
 export default function AppLayout() {
   const user = useAuthStore((s) => s.user)
@@ -30,12 +33,26 @@ export default function AppLayout() {
     </button>
   )
 
+  const linkClass = ({ isActive }) =>
+    `block rounded-md px-3 py-2 ${
+      isActive ? 'bg-zinc-800 text-emerald-400' : 'text-zinc-300 hover:bg-zinc-900'
+    }`
+
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 md:flex">
       {/* Layar sempit: bilah atas */}
-      <header className="flex items-center justify-between border-b border-zinc-800 px-4 py-3 md:hidden">
-        <span className="text-xl font-bold text-emerald-400">ASATunes</span>
-        {logoutButton}
+      <header className="border-b border-zinc-800 px-4 py-3 md:hidden">
+        <div className="flex items-center justify-between">
+          <span className="text-xl font-bold text-emerald-400">ASATunes</span>
+          {logoutButton}
+        </div>
+        <nav className="mt-2 flex gap-1">
+          {NAV_ITEMS.map((item) => (
+            <NavLink key={item.to} to={item.to} end className={linkClass}>
+              {item.label}
+            </NavLink>
+          ))}
+        </nav>
       </header>
 
       {/* Layar lebar: sidebar */}
@@ -44,16 +61,7 @@ export default function AppLayout() {
           <p className="mb-6 text-2xl font-bold text-emerald-400">ASATunes</p>
           <nav className="space-y-1">
             {NAV_ITEMS.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end
-                className={({ isActive }) =>
-                  `block rounded-md px-3 py-2 ${
-                    isActive ? 'bg-zinc-800 text-emerald-400' : 'text-zinc-300 hover:bg-zinc-900'
-                  }`
-                }
-              >
+              <NavLink key={item.to} to={item.to} end className={linkClass}>
                 {item.label}
               </NavLink>
             ))}
@@ -68,7 +76,7 @@ export default function AppLayout() {
         </div>
       </aside>
 
-      <main className={`min-w-0 flex-1 p-4 md:p-8 ${hasQueue ? 'pb-28' : 'pb-8'}`}>
+      <main className={`min-w-0 flex-1 p-4 md:p-8 ${hasQueue ? 'pb-32' : 'pb-8'}`}>
         <Outlet />
       </main>
 
