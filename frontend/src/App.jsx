@@ -5,6 +5,7 @@ import ProtectedRoute from './components/ProtectedRoute.jsx'
 import FavoritesPage from './pages/FavoritesPage.jsx'
 import HomePage from './pages/HomePage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
+import PlaylistsPage from './pages/PlaylistsPage.jsx'
 import RegisterPage from './pages/RegisterPage.jsx'
 import SearchPage from './pages/SearchPage.jsx'
 
@@ -22,6 +23,7 @@ export default function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/cari" element={<SearchPage />} />
             <Route path="/favorit" element={<FavoritesPage />} />
+            <Route path="/playlist" element={<PlaylistsPage />} />
           </Route>
         </Route>
 

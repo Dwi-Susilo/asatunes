@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { to: '/', label: 'Beranda' },
   { to: '/cari', label: 'Cari' },
   { to: '/favorit', label: 'Favorit' },
+  { to: '/playlist', label: 'Playlist' },
 ]
 
 export default function AppLayout() {
