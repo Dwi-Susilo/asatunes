@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Avatar from '../components/Avatar.jsx'
 import AvatarForm from '../components/AvatarForm.jsx'
+import PasswordForm from '../components/PasswordForm.jsx'
 import TextField from '../components/TextField.jsx'
 import { api } from '../lib/api.js'
 import { describeError } from '../lib/errors.js'
@@ -97,6 +98,8 @@ export default function ProfilePage() {
           </button>
         </form>
       </section>
+
+      <PasswordForm />
     </div>
   )
 }
