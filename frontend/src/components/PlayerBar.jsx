@@ -14,6 +14,7 @@ import {
 } from './Icons.jsx'
 import LyricsPanel from './LyricsPanel.jsx'
 import SeekBar from './SeekBar.jsx'
+import AddToPlaylistButton from './AddToPlaylistButton.jsx'
 
 const REPEAT_LABEL = {
   off: 'Ulangi: mati',
@@ -62,6 +63,7 @@ export default function PlayerBar() {
 
             <div className="flex items-center gap-1 text-zinc-300">
               <HeartButton />
+              <AddToPlaylistButton />
               <button
                 type="button"
                 onClick={() => setShowLyrics((v) => !v)}

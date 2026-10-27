@@ -35,3 +35,11 @@ export function deletePlaylist(id) {
 export function removeSongFromPlaylist(id, songId) {
   return api.delete(`/playlists/${id}/songs/${songId}`)
 }
+
+// POST /playlists/{id}/songs { song_id }: 201 ditambahkan, 200 sudah ada,
+// 422 bila lagu tidak ada atau playlist penuh (maks 500).
+// Mengembalikan { added: boolean }.
+export async function addSongToPlaylist(id, songId) {
+  const res = await api.post(`/playlists/${id}/songs`, { song_id: songId })
+  return { added: res.message !== 'Lagu sudah ada di playlist.' }
+}
