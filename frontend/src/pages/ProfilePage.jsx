@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import Avatar from '../components/Avatar.jsx'
+import AvatarForm from '../components/AvatarForm.jsx'
 import TextField from '../components/TextField.jsx'
 import { api } from '../lib/api.js'
 import { describeError } from '../lib/errors.js'
@@ -62,6 +63,8 @@ export default function ProfilePage() {
           <p className="text-xs text-zinc-500">Bergabung sejak {joined}</p>
         </div>
       </section>
+
+      <AvatarForm />
 
       <section>
         <h2 className="mb-3 text-lg font-semibold">Ubah nama</h2>
