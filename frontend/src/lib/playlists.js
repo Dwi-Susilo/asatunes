@@ -43,3 +43,9 @@ export async function addSongToPlaylist(id, songId) {
   const res = await api.post(`/playlists/${id}/songs`, { song_id: songId })
   return { added: res.message !== 'Lagu sudah ada di playlist.' }
 }
+
+// PUT /playlists/{id}/songs/order { song_ids }: song_ids harus berisi PERSIS
+// semua lagu playlist, tanpa id ganda. 422 bila tidak cocok; urutan tidak berubah.
+export function reorderPlaylist(id, songIds) {
+  return api.put(`/playlists/${id}/songs/order`, { song_ids: songIds })
+}

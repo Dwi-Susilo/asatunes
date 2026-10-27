@@ -43,7 +43,8 @@ export default function SongList({ songs, onPlay, renderAction }) {
                 {formatDuration(song.duration_sec)}
               </span>
             </button>
-            {renderAction && <div className="shrink-0">{renderAction(song)}</div>}
+            {/* {renderAction && <div className="shrink-0">{renderAction(song)}</div>} */}
+            {renderAction && <div className="shrink-0">{renderAction(song, i)}</div>}
           </li>
         )
       })}
