@@ -6,7 +6,6 @@ import Avatar from './Avatar.jsx'
 import AudioPlayer from './AudioPlayer.jsx'
 import PlayerBar from './PlayerBar.jsx'
 
-// Menu bertambah seiring langkah: Profil (43), dst.
 const NAV_ITEMS = [
   { to: '/', label: 'Beranda' },
   { to: '/cari', label: 'Cari' },
@@ -15,11 +14,16 @@ const NAV_ITEMS = [
   { to: '/profil', label: 'Profil' },
 ]
 
+// Hanya untuk admin (Langkah 44). Penentu akses tetap server.
+const ADMIN_NAV_ITEM = { to: '/admin', label: 'Admin' }
+
 export default function AppLayout() {
   const user = useAuthStore((s) => s.user)
   const logout = useAuthStore((s) => s.logout)
   const hasQueue = usePlayerStore((s) => s.queue.length > 0)
   const [loggingOut, setLoggingOut] = useState(false)
+
+  const navItems = user.role === 'admin' ? [...NAV_ITEMS, ADMIN_NAV_ITEM] : NAV_ITEMS
 
   async function handleLogout() {
     setLoggingOut(true)
@@ -51,7 +55,7 @@ export default function AppLayout() {
           {logoutButton}
         </div>
         <nav className="mt-2 flex flex-wrap gap-1">
-          {NAV_ITEMS.map((item) => (
+          {navItems.map((item) => (
             <NavLink key={item.to} to={item.to} end className={linkClass}>
               {item.label}
             </NavLink>
@@ -64,7 +68,7 @@ export default function AppLayout() {
         <div>
           <p className="mb-6 text-2xl font-bold text-emerald-400">ASATunes</p>
           <nav className="space-y-1">
-            {NAV_ITEMS.map((item) => (
+            {navItems.map((item) => (
               <NavLink key={item.to} to={item.to} end className={linkClass}>
                 {item.label}
               </NavLink>

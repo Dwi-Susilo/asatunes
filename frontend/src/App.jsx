@@ -1,7 +1,9 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import AdminRoute from './components/AdminRoute.jsx'
 import AppLayout from './components/AppLayout.jsx'
 import GuestRoute from './components/GuestRoute.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
+import AdminPage from './pages/AdminPage.jsx'
 import FavoritesPage from './pages/FavoritesPage.jsx'
 import HomePage from './pages/HomePage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
@@ -28,6 +30,10 @@ export default function App() {
             <Route path="/playlist" element={<PlaylistsPage />} />
             <Route path="/playlist/:id" element={<PlaylistDetailPage />} />
             <Route path="/profil" element={<ProfilePage />} />
+
+            <Route element={<AdminRoute />}>
+              <Route path="/admin" element={<AdminPage />} />
+            </Route>
           </Route>
         </Route>
 
