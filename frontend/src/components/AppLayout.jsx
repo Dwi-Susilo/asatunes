@@ -2,15 +2,17 @@ import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore.js'
 import { usePlayerStore } from '../store/playerStore.js'
+import Avatar from './Avatar.jsx'
 import AudioPlayer from './AudioPlayer.jsx'
 import PlayerBar from './PlayerBar.jsx'
 
-// Menu bertambah seiring langkah: Playlist (42), dst.
+// Menu bertambah seiring langkah: Profil (43), dst.
 const NAV_ITEMS = [
   { to: '/', label: 'Beranda' },
   { to: '/cari', label: 'Cari' },
   { to: '/favorit', label: 'Favorit' },
   { to: '/playlist', label: 'Playlist' },
+  { to: '/profil', label: 'Profil' },
 ]
 
 export default function AppLayout() {
@@ -48,7 +50,7 @@ export default function AppLayout() {
           <span className="text-xl font-bold text-emerald-400">ASATunes</span>
           {logoutButton}
         </div>
-        <nav className="mt-2 flex gap-1">
+        <nav className="mt-2 flex flex-wrap gap-1">
           {NAV_ITEMS.map((item) => (
             <NavLink key={item.to} to={item.to} end className={linkClass}>
               {item.label}
@@ -69,10 +71,13 @@ export default function AppLayout() {
             ))}
           </nav>
         </div>
-        <div className="space-y-2">
-          <div className="min-w-0">
-            <p className="truncate text-sm font-medium">{user.name}</p>
-            <p className="truncate text-xs text-zinc-400">{user.email}</p>
+        <div className="space-y-3">
+          <div className="flex items-center gap-3">
+            <Avatar name={user.name} url={user.avatar_url} />
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium">{user.name}</p>
+              <p className="truncate text-xs text-zinc-400">{user.email}</p>
+            </div>
           </div>
           {logoutButton}
         </div>

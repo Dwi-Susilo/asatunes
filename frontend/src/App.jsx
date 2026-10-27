@@ -7,6 +7,7 @@ import HomePage from './pages/HomePage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
 import PlaylistDetailPage from './pages/PlaylistDetailPage.jsx'
 import PlaylistsPage from './pages/PlaylistsPage.jsx'
+import ProfilePage from './pages/ProfilePage.jsx'
 import RegisterPage from './pages/RegisterPage.jsx'
 import SearchPage from './pages/SearchPage.jsx'
 
@@ -26,6 +27,7 @@ export default function App() {
             <Route path="/favorit" element={<FavoritesPage />} />
             <Route path="/playlist" element={<PlaylistsPage />} />
             <Route path="/playlist/:id" element={<PlaylistDetailPage />} />
+            <Route path="/profil" element={<ProfilePage />} />
           </Route>
         </Route>
 

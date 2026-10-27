@@ -29,6 +29,11 @@ export const useAuthStore = create((set, get) => ({
     return res.data
   },
 
+  // Dipakai setelah PATCH /profile: data = User terbaru, sidebar ikut berubah.
+  setUser(user) {
+    set({ user })
+  },
+
   // Keluar bersih walau server gagal dihubungi.
   async logout() {
     try {
