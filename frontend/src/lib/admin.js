@@ -14,13 +14,14 @@ export function fetchAdminUsers({ page, perPage, signal }) {
   return api.get(`/admin/users?page=${page}&per_page=${perPage}`, { signal })
 }
 
-// Aksi per pengguna. Semuanya mengembalikan seluruh JSON { status, message, data: User }.
-// block: semua token pengguna itu dicabut seketika. role: { role: 'admin' | 'user' }.
+// Aksi per pengguna. block/unblock/promote/demote mengembalikan { status, message, data: User }.
+// remove (DELETE) hanya mengembalikan { status, message }: tidak ada data User.
 const USER_ACTIONS = {
   block: (id) => api.post(`/admin/users/${id}/block`),
   unblock: (id) => api.post(`/admin/users/${id}/unblock`),
   promote: (id) => api.patch(`/admin/users/${id}/role`, { role: 'admin' }),
   demote: (id) => api.patch(`/admin/users/${id}/role`, { role: 'user' }),
+  remove: (id) => api.delete(`/admin/users/${id}`),
 }
 
 export function runUserAction(id, action) {

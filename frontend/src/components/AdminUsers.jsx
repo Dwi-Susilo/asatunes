@@ -26,6 +26,11 @@ const ASK = {
     yes: 'Ya, turunkan',
     danger: false,
   },
+  remove: {
+    ask: (name) => `Hapus ${name}? Akun, sesi, dan foto profilnya dihapus permanen.`,
+    yes: 'Ya, hapus',
+    danger: true,
+  },
 }
 
 const BTN = 'rounded-md border px-2.5 py-1 text-xs disabled:opacity-50'
@@ -103,6 +108,15 @@ function UserActions({ user, confirmAction, disabled, onStart, onConfirm, onCanc
         className={BTN_NORMAL}
       >
         {isAdmin ? 'Jadikan pengguna biasa' : 'Jadikan admin'}
+      </button>
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => onStart('remove')}
+        aria-label={`Hapus akun ${user.name}`}
+        className={BTN_DANGER}
+      >
+        Hapus
       </button>
     </div>
   )
