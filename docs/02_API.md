@@ -300,7 +300,7 @@ Mengalirkan audio dari server. Mendukung header **`Range`** (misalnya `bytes=100
 
 ### 6.7 POST `/music/{song}/play`
 
-`{song}` = `song_id` (angka). Dapat dipanggil tanpa token. Pemutaran Pengunjung dicatat dengan `user_id` kosong dan `ip_address` **[v1.2: rancangan]**.
+`{song}` = `song_id` (angka). Dapat dipanggil tanpa token. Pemutaran Pengunjung dicatat dengan `user_id` kosong dan `ip_address` berisi hash IP (HMAC-SHA256), bukan IP mentah; kolom itu dikosongkan setelah 1 hari **[v1.2: rancangan]**.
 
 | Field | Aturan |
 |---|---|
@@ -390,5 +390,5 @@ Aturan bisnis (dijawab `422`):
 4. **Tambahan di luar SRS:** batas 500 lagu per playlist, pencabutan token perangkat lain saat password diganti, dan pembatas pendaftaran 10 per menit.
 5. **Belum ada:** penanda `is_favorite` pada hasil pencarian atau stream (ikon hati harus memuat daftar favorit sendiri), dan dokumentasi format respons `429`.
 6. **Jadwal** (`trending:refresh` Senin 03:00, `ytdlp:update` Minggu 03:30) mengikuti zona waktu aplikasi (UTC).
-7. **Mode Pengunjung (v1.2, rancangan).** Endpoint musik terbuka tanpa token, `play_url` tanpa pemilik, pembatas per IP, dan kolom `song_plays.ip_address`. Backend belum mengimplementasikannya; keputusan terbuka D9 sampai D11 ada di SRS bagian 8.
+7. **Mode Pengunjung (v1.2, rancangan).** Endpoint musik terbuka tanpa token, `play_url` tanpa pemilik, pembatas per IP, dan kolom `song_plays.ip_address`. Backend mengimplementasikannya pada tahap B1 sampai B5 (15 Nov 2026); keputusan terbuka yang tersisa untuk bagian ini: D10 dan D11 (SRS bagian 8).
 8. **Lupa password dan riwayat lagu diputar (v1.2 rev. 15 Nov 2026, rancangan).** Kedua use case ada di diagram dan SRS tetapi belum punya endpoint, sehingga belum ada kontraknya di dokumen ini. D12, D15, D16, dan K1 sudah diputuskan (lihat riwayat revisi SRS); rincian D13 dan D14 masih terbuka di SRS bagian 8.

@@ -20,16 +20,21 @@ Route::prefix('v1')->group(function () {
         ->whereNumber('song')
         ->middleware(['signed', 'throttle:audio']);
 
-    // Endpoint baca musik terbuka untuk Pengunjung (SRS 4.1). Token yang dikirim dikenali bila valid,
+    // Endpoint musik terbuka untuk Pengunjung (SRS 4.1): baca, stream, dan play. Token yang dikirim dikenali bila valid,
     // selain itu diperlakukan sebagai Pengunjung. auth.optional harus sebelum throttle.
     Route::middleware(['auth.optional', 'throttle:api'])->prefix('music')->group(function () {
         Route::get('search', [MusicController::class, 'search'])->middleware('throttle:ytdlp');
+        Route::get('stream', [MusicController::class, 'stream'])->middleware('throttle:ytdlp');
         Route::get('trending', [MusicController::class, 'trending']);
         Route::get('lyrics', [MusicController::class, 'lyrics']);
 
         Route::get('{youtubeId}/recommendations', [MusicController::class, 'recommendations'])
             ->where('youtubeId', '[A-Za-z0-9_-]{11}')
             ->middleware('throttle:ytdlp');
+
+        Route::post('{song}/play', [SongPlayController::class, 'store'])
+            ->whereNumber('song')
+            ->middleware('throttle:play');
     });
 
     Route::middleware(['auth:sanctum', 'not.blocked', 'throttle:api'])->group(function () {
@@ -38,14 +43,6 @@ Route::prefix('v1')->group(function () {
         Route::get('profile', [ProfileController::class, 'show']);
         Route::patch('profile', [ProfileController::class, 'update']);
         Route::put('profile/password', [ProfileController::class, 'updatePassword']);
-
-        Route::prefix('music')->group(function () {
-            Route::get('stream', [MusicController::class, 'stream'])->middleware('throttle:ytdlp');
-
-            Route::post('{song}/play', [SongPlayController::class, 'store'])
-                ->whereNumber('song')
-                ->middleware('throttle:play');
-        });
 
         Route::prefix('favorites')->group(function () {
             Route::get('/', [FavoriteController::class, 'index']);

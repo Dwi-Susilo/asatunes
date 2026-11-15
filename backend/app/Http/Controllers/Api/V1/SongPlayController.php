@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePlayRequest;
 use App\Models\Song;
 use App\Models\SongPlay;
+use App\Support\IpHash;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
 
@@ -22,17 +23,22 @@ class SongPlayController extends Controller
 
         $user = $request->user();
 
-        // 2. Cache::add hanya berhasil kalau kuncinya belum ada: satu hitungan per cooldown
-        $first = Cache::add("play:{$user->id}:{$song->id}", true, now()->addSeconds(self::COOLDOWN_SEC));
+        // Pengguna dikenali lewat user_id; Pengunjung lewat hash IP (keputusan D9)
+        $ipHash = $user ? null : IpHash::of((string) $request->ip());
+        $who    = $user ? "{$user->id}" : "ip:{$ipHash}";
+
+        // 2. Cache::add hanya berhasil kalau kuncinya belum ada: satu hitungan per cooldown (keputusan K3)
+        $first = Cache::add("play:{$who}:{$song->id}", true, now()->addSeconds(self::COOLDOWN_SEC));
 
         if (! $first) {
             return $this->result(false, 'duplicate');
         }
 
         SongPlay::create([
-            'user_id'   => $user->id,
-            'song_id'   => $song->id,
-            'played_at' => now(),
+            'user_id'    => $user?->id,
+            'ip_address' => $ipHash,
+            'song_id'    => $song->id,
+            'played_at'  => now(),
         ]);
 
         return $this->result(true, null, 201);

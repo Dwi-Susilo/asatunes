@@ -68,13 +68,9 @@ class OpenMusicRoutesTest extends TestCase
 
     public function test_account_endpoints_stay_closed_without_a_token(): void
     {
-        $song = Song::factory()->create();
-
         $this->getJson('/api/v1/favorites')->assertUnauthorized();
         $this->getJson('/api/v1/playlists')->assertUnauthorized();
         $this->getJson('/api/v1/profile')->assertUnauthorized();
         $this->getJson('/api/v1/admin/stats')->assertUnauthorized();
-        $this->getJson("/api/v1/music/stream?query={$song->youtube_id}")->assertUnauthorized();
-        $this->postJson("/api/v1/music/{$song->id}/play", ['listened_sec' => 45])->assertUnauthorized();
     }
 }
