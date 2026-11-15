@@ -1,8 +1,11 @@
 # ASATunes: Dokumentasi API
 
-Versi dokumen: 1.1 (24 Oktober 2026). Mengacu pada `01_SRS.md` v1.1.
-Mencerminkan backend Laravel sampai Langkah 36 (semua endpoint di bawah sudah dibangun dan teruji).
+Versi dokumen: 1.2 (rev. 15 November 2026). Mengacu pada `01_SRS.md` v1.3.
+Mencerminkan backend Laravel sampai Langkah 36, **kecuali perubahan v1.2 (mode Pengunjung) yang masih berupa rancangan dan belum dibangun di backend**. Bagian yang terdampak diberi tanda **[v1.2: rancangan]**.
 Perubahan dari 1.0: `proxy-audio` diganti URL audio bertanda tangan (`play_url`).
+Perubahan dari 1.1 **[v1.2: rancangan]**: endpoint baca musik terbuka untuk Tamu; `play_url` tidak lagi terikat ke pengguna; pembatas laju per IP untuk Tamu; pemutaran Tamu dicatat dengan `ip_address`.
+Perubahan v1.2 rev. 15 November 2026 **[v1.2: rancangan]**: istilah Tamu menjadi Pengunjung dan User menjadi Pengguna (mengikuti diagram use case; objek **User** dan nilai `role` tidak berubah); use case Lupa password dan Lihat riwayat lagu diputar ditambahkan di SRS tetapi belum punya endpoint (bagian 10, butir 8).
+Keputusan 15 November 2026 **[v1.2: rancangan]**: akun `blocked` tetap tidak dapat login (D12); Lupa password lewat email berisi token (D13, rincian terbuka); Riwayat lagu diambil dari `song_plays` (D14, rincian terbuka); label peran hanya berubah di SRS, objek **User** dan `role` tetap (D15); server tidak menolak Registrasi, Login, dan Lupa password bagi pemegang token (D16); endpoint musik terbuka mengenali token valid sebagai Pengguna (K1).
 
 ---
 
@@ -16,7 +19,7 @@ Perubahan dari 1.0: `proxy-audio` diganti URL audio bertanda tangan (`play_url`)
 | Format | JSON, UTF-8 |
 | Header wajib | `Accept: application/json` |
 | Header untuk isi JSON | `Content-Type: application/json` |
-| Autentikasi | `Authorization: Bearer <token>` |
+| Autentikasi | `Authorization: Bearer <token>` (tidak diperlukan untuk endpoint musik; bila dikirim dan valid, token dikenali **[v1.2: rancangan]**) |
 
 `Accept: application/json` wajib dikirim di setiap permintaan. Tanpa itu, Laravel bisa menganggap permintaan datang dari browser biasa.
 
@@ -52,16 +55,16 @@ Semua pesan berbahasa Indonesia. Klien sebaiknya bergantung pada **kode status**
 | Kode | Arti |
 |---|---|
 | 200 / 201 | Berhasil / berhasil dibuat |
-| 401 | Token tidak ada, salah, atau kedaluwarsa. Minta login ulang |
-| 403 | Akun diblokir, bukan admin, atau bukan pemilik sumber daya |
+| 401 | Endpoint yang butuh login dipanggil tanpa token, atau token salah/kedaluwarsa. Minta login ulang. Tidak terjadi pada endpoint musik terbuka, termasuk bila token yang dikirim tidak valid atau kedaluwarsa: permintaan diperlakukan sebagai Pengunjung **[v1.2: rancangan]** |
+| 403 | Akun diblokir (pada fitur akun), bukan admin, atau bukan pemilik sumber daya |
 | 404 | Sumber daya tidak ditemukan (juga untuk format ID yang salah pada beberapa route) |
 | 405 | Metode HTTP tidak diizinkan |
 | 422 | Validasi gagal, atau aturan bisnis ditolak |
 | 429 | Terlalu banyak permintaan. Lihat header `Retry-After` |
-| 502 | Layanan pihak ketiga gagal (stream, proxy, lirik) |
+| 502 | Layanan pihak ketiga gagal (stream, audio, lirik) |
 | 503 | Layanan musik atau data trending tidak tersedia |
 
-Akun yang diblokir mendapat `403` di semua endpoint, dan semua tokennya dicabut pada saat itu juga.
+Akun yang diblokir mendapat `403` di semua endpoint fitur akun, dan semua tokennya dicabut pada saat itu juga. Musik tetap dapat diputar sebagai Pengunjung **[v1.2: rancangan]**. Akun `blocked` tidak dapat login (`403`) dan tidak punya sesi, sehingga hanya dapat memakai fitur Pengunjung (keputusan D12).
 
 ### 1.4 Halaman (pagination)
 
@@ -79,14 +82,14 @@ Daftar berhalaman memakai `?page=` dan mengembalikan:
 
 | Pembatas | Batas | Berlaku untuk |
 |---|---|---|
-| Global | 60 per menit per pengguna | Semua endpoint setelah login (kecuali `music/audio`, yang tanpa token) |
+| Global | 60 per menit per pengguna (login) atau per IP (Pengunjung) | Semua endpoint (kecuali `music/audio`, yang tanpa token) |
 | Login | 5 per menit per email + IP | `POST /auth/login` |
 | Daftar | 10 per menit per IP | `POST /auth/register` |
-| yt-dlp | 20 per menit per pengguna | `music/search`, `music/stream`, `music/{id}/recommendations` |
-| Pemutaran | 30 per menit per pengguna | `POST /music/{song}/play` |
-| Audio | 300 per menit per pengguna | `GET /music/audio/{song}` (URL bertanda tangan) |
+| yt-dlp | 20 per menit per pengguna (login) atau per IP (Pengunjung) | `music/search`, `music/stream`, `music/{id}/recommendations` |
+| Pemutaran | 30 per menit per pengguna (login) atau per IP (Pengunjung) | `POST /music/{song}/play` |
+| Audio | 300 per menit per IP | `GET /music/audio/{song}` (URL bertanda tangan) |
 
-Batas-batas ini berlaku bersamaan. Melebihi salah satunya menghasilkan `429`.
+Batas-batas ini berlaku bersamaan. Melebihi salah satunya menghasilkan `429`. Pengguna di satu jaringan yang sama berbagi jatah per IP **[v1.2: rancangan]**.
 
 ### 1.6 CORS
 
@@ -162,12 +165,12 @@ Token Sanctum berlaku **30 hari** sejak login. Simpan di klien, kirim sebagai `B
 Alur memutar satu lagu:
 
 1. Pengguna memilih lagu dari daftar (`youtube_id`).
-2. `GET /music/stream?query=<youtube_id>` mengembalikan `song_id` dan `play_url`.
+2. `GET /music/stream?query=<youtube_id>` mengembalikan `song_id` dan `play_url`. Langkah 2 sampai 6 berlaku juga tanpa token (Pengunjung) **[v1.2: rancangan]**.
 3. Pasang `play_url` apa adanya sebagai sumber audio, misalnya `<audio src="{play_url}">`. Tidak perlu header `Authorization` (lihat 6.3).
 4. Setelah mendengarkan, kirim `POST /music/{song_id}/play` dengan `listened_sec`. Hanya dihitung bila 30 detik atau lebih.
 5. Untuk antrean berikutnya: `GET /music/<youtube_id lagu sekarang>/recommendations`.
 6. Untuk lirik: `GET /music/lyrics?title=…&artist=…&duration=…` dari data lagu yang sedang diputar.
-7. Ikon hati dan "tambah ke playlist" memakai `song_id` dari langkah 2.
+7. Ikon hati dan "tambah ke playlist" memakai `song_id` dari langkah 2. Fitur ini hanya untuk pengguna login; untuk Pengunjung arahkan ke login atau daftar.
 
 ---
 
@@ -198,6 +201,10 @@ Alur memutar satu lagu:
 ### POST `/auth/logout` (login)
 
 `200`: `Berhasil logout.` Mencabut token yang dipakai pada permintaan ini saja.
+
+### Lupa password **[v1.2: rancangan]**
+
+Use case ada di SRS (3.1) untuk Pengunjung. Diputuskan (D13): reset lewat email berisi token. Endpoint, field, masa berlaku, dan kode status belum ditetapkan: lihat bagian 10, butir 8 (SRS bagian 8, D13). Server tidak menolak Registrasi, Login, dan Lupa password bila permintaan membawa token (D16).
 
 ---
 
@@ -230,7 +237,9 @@ Alur memutar satu lagu:
 
 ---
 
-## 6. Musik (login)
+## 6. Musik (umum: Pengunjung dan pengguna login)
+
+Semua endpoint di bagian ini dapat dipanggil tanpa token **[v1.2: rancangan]**. Pada v1.1 semuanya (kecuali 6.3) mewajibkan login. Bila header `Authorization` valid dikirim, permintaan dikenali sebagai Pengguna (misalnya `play` mencatat `user_id`); token tidak valid atau kedaluwarsa diperlakukan sebagai Pengunjung, bukan `401` (K1).
 
 ### 6.1 GET `/music/search`
 
@@ -250,7 +259,7 @@ Alur memutar satu lagu:
 `200`: `data: { song_id, play_url, expires_at }`. Lagu otomatis tersimpan (hanya metadata). Sumber audio di-cache 90 menit di server, jadi panggilan berulang sangat cepat. Panggilan pertama untuk lagu baru sekitar 6 detik.
 `422`: format ID salah. `502`: `Lagu tidak dapat diputar saat ini.` Pembatas: yt-dlp.
 
-`play_url` adalah alamat di server kita sendiri yang **bertanda tangan** dan berlaku 3 jam (`expires_at`, format ISO 8601). Pakai **apa adanya**: jangan ubah host, jalur, atau parameternya, dan jangan lewatkan proxy yang mengubah alamat, karena tanda tangan dihitung dari alamat lengkap (`APP_URL` harus sama dengan alamat API yang diakses klien). Setelah kedaluwarsa, panggil `stream` lagi untuk mendapat yang baru. URL asli `googlevideo.com` tidak pernah dikirim ke klien.
+`play_url` adalah alamat di server kita sendiri yang **bertanda tangan**, tidak terikat ke pengguna, dan berlaku 3 jam (`expires_at`, format ISO 8601). Pakai **apa adanya**: jangan ubah host, jalur, atau parameternya, dan jangan lewatkan proxy yang mengubah alamat, karena tanda tangan dihitung dari alamat lengkap (`APP_URL` harus sama dengan alamat API yang diakses klien). Setelah kedaluwarsa, panggil `stream` lagi untuk mendapat yang baru. URL asli `googlevideo.com` tidak pernah dikirim ke klien.
 
 ### 6.3 GET `/music/audio/{song}` (URL bertanda tangan, tanpa token)
 
@@ -258,9 +267,9 @@ Alamat ini **tidak dipanggil dengan menyusun sendiri**: selalu pakai `play_url` 
 
 Mengalirkan audio dari server. Mendukung header **`Range`** (misalnya `bytes=1000000-`): dijawab `206` dengan `Content-Range`, sehingga *seek* bekerja. `Content-Type` diteruskan dari sumber (misalnya `audio/webm`).
 
-- `403`: tanda tangan salah atau hilang, URL sudah kedaluwarsa, atau pemilik URL diblokir atau sudah dihapus. Tindakan klien: panggil `stream` lagi (kalau akun diblokir, tetap `403`).
+- `403`: tanda tangan salah atau hilang, atau URL sudah kedaluwarsa. Tindakan klien: panggil `stream` lagi.
 - `502`: sumber audio gagal. Server sudah mencoba mengambil sumber baru satu kali. Klien boleh mencoba lagi nanti.
-- Pembatas: 300 per menit per pengguna (tidak terkena pembatas global).
+- Pembatas: 300 per menit per IP (tidak terkena pembatas global).
 
 ### 6.4 GET `/music/trending`
 
@@ -291,15 +300,15 @@ Mengalirkan audio dari server. Mendukung header **`Range`** (misalnya `bytes=100
 
 ### 6.7 POST `/music/{song}/play`
 
-`{song}` = `song_id` (angka).
+`{song}` = `song_id` (angka). Dapat dipanggil tanpa token. Pemutaran Pengunjung dicatat dengan `user_id` kosong dan `ip_address` **[v1.2: rancangan]**.
 
 | Field | Aturan |
 |---|---|
 | `listened_sec` | wajib, bilangan bulat 0 sampai 86400 |
 
 - `201`: `data: { counted: true, reason: null }`, pemutaran dicatat.
-- `200`: `data: { counted: false, reason: "too_short" }` (kurang dari 30 detik) atau `"duplicate"` (lagu yang sama sudah dicatat untuk pengguna ini dalam 60 detik terakhir).
-- `404`: lagu tidak ada. Pembatas: 30 per menit.
+- `200`: `data: { counted: false, reason: "too_short" }` (kurang dari 30 detik) atau `"duplicate"` (lagu yang sama sudah dicatat untuk pengguna ini, atau IP ini bila Pengunjung, dalam 60 detik terakhir).
+- `404`: lagu tidak ada. Pembatas: 30 per menit (per pengguna, atau per IP untuk Pengunjung).
 
 ---
 
@@ -314,6 +323,10 @@ Semua operasi hanya menyangkut favorit milik pemilik token.
 | DELETE | `/favorites/{song}` | `200` `Dihapus dari favorit.` atau `Lagu tidak ada di favorit.` |
 
 `{song}` = `song_id`. Menambah dan menghapus bersifat idempoten: aman dikirim ulang. `404` bila lagu tidak ada.
+
+### Riwayat lagu diputar **[v1.2: rancangan]**
+
+Use case ada di SRS (3.3) untuk Pengguna. Diputuskan (D14): sumber data `song_plays`, satu baris per putaran yang tercatat (30 detik atau lebih, bukan `duplicate`). Endpoint, bentuk respons, dan ukuran halaman belum ditetapkan: lihat bagian 10, butir 8 (SRS bagian 8, D14).
 
 ---
 
@@ -369,11 +382,13 @@ Aturan bisnis (dijawab `422`):
 
 ---
 
-## 10. Keputusan terbuka dan catatan untuk SRS v1.2
+## 10. Keputusan terbuka dan catatan untuk SRS v1.3
 
-1. **Memutar audio (sudah diputuskan, Langkah 36).** SRS 2.B mewajibkan `proxy-audio` memakai token `Bearer`, tetapi elemen `<audio src>` di browser tidak bisa mengirim header `Authorization`. Diputuskan memakai URL bertanda tangan (`play_url`) yang diterbitkan `stream`, berlaku 3 jam dan terikat ke pengguna. Endpoint `proxy-audio?url=` dihapus, sehingga klien tidak lagi mengirim alamat apa pun ke server. **SRS 2.B perlu diperbarui** agar mencerminkan ini. Konsekuensinya: siapa pun yang memegang `play_url` bisa memutar lagu itu sampai kedaluwarsa atau pemiliknya diblokir.
+1. **Memutar audio (sudah diputuskan, Langkah 36).** SRS 2.B mewajibkan `proxy-audio` memakai token `Bearer`, tetapi elemen `<audio src>` di browser tidak bisa mengirim header `Authorization`. Diputuskan memakai URL bertanda tangan (`play_url`) yang diterbitkan `stream`, berlaku 3 jam. Pada v1.2 keterikatan ke pengguna dihapus **[v1.2: rancangan]**. Endpoint `proxy-audio?url=` dihapus, sehingga klien tidak lagi mengirim alamat apa pun ke server. SRS 2.B sudah diperbarui pada v1.3. Konsekuensinya: siapa pun yang memegang `play_url` bisa memutar lagu itu sampai kedaluwarsa.
 2. **Pencarian disaring.** SRS belum menyebut aturan penyaringan (durasi 60 sampai 600 detik, kata terlarang). Perlu dicatat di SRS.
 3. **Smart Queue.** Prioritas album hanya berlaku untuk lagu yang sudah tersimpan di database, karena pencarian YouTube tidak memberi nama album. Hasil bisa kurang dari yang diminta.
 4. **Tambahan di luar SRS:** batas 500 lagu per playlist, pencabutan token perangkat lain saat password diganti, dan pembatas pendaftaran 10 per menit.
 5. **Belum ada:** penanda `is_favorite` pada hasil pencarian atau stream (ikon hati harus memuat daftar favorit sendiri), dan dokumentasi format respons `429`.
 6. **Jadwal** (`trending:refresh` Senin 03:00, `ytdlp:update` Minggu 03:30) mengikuti zona waktu aplikasi (UTC).
+7. **Mode Pengunjung (v1.2, rancangan).** Endpoint musik terbuka tanpa token, `play_url` tanpa pemilik, pembatas per IP, dan kolom `song_plays.ip_address`. Backend belum mengimplementasikannya; keputusan terbuka D9 sampai D11 ada di SRS bagian 8.
+8. **Lupa password dan riwayat lagu diputar (v1.2 rev. 15 Nov 2026, rancangan).** Kedua use case ada di diagram dan SRS tetapi belum punya endpoint, sehingga belum ada kontraknya di dokumen ini. D12, D15, D16, dan K1 sudah diputuskan (lihat riwayat revisi SRS); rincian D13 dan D14 masih terbuka di SRS bagian 8.
