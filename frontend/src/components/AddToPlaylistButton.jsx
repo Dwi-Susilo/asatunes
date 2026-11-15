@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useRef, useState } from 'react'
 import { usePlaylists } from '../hooks/usePlaylists.js'
+import { useRequireLogin } from '../hooks/useRequireLogin.js'
 import { describeError } from '../lib/errors.js'
 import { addSongToPlaylist } from '../lib/playlists.js'
 import { useAuthStore } from '../store/authStore.js'
@@ -11,6 +12,7 @@ export default function AddToPlaylistButton() {
   const userId = useAuthStore((s) => s.user?.id)
   const queryClient = useQueryClient()
   const { playlists, isPending, error } = usePlaylists()
+  const { isGuest, goToLogin } = useRequireLogin()
   // Menyimpan song_id tempat menu dibuka. Menu dianggap terbuka hanya bila
   // lagu aktif masih sama, jadi berganti lagu otomatis menutupnya (tanpa efek).
   const [openFor, setOpenFor] = useState(null)
@@ -45,13 +47,14 @@ export default function AddToPlaylistButton() {
   }, [open])
 
   const ready = songId != null
-  const label = ready ? 'Tambah ke playlist' : 'Playlist belum siap'
+  let label = ready ? 'Tambah ke playlist' : 'Playlist belum siap'
+  if (isGuest) label = 'Masuk untuk menambah ke playlist'
 
   return (
     <div ref={wrapRef} className="relative">
       <button
         type="button"
-        onClick={() => setOpenFor(open ? null : songId)}
+        onClick={() => (isGuest ? goToLogin() : setOpenFor(open ? null : songId))}
         disabled={!ready}
         aria-label={label}
         aria-expanded={open}

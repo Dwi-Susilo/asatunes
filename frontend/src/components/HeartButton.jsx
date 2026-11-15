@@ -1,21 +1,25 @@
 import { useFavorites } from '../hooks/useFavorites.js'
+import { useRequireLogin } from '../hooks/useRequireLogin.js'
 import { usePlayerStore } from '../store/playerStore.js'
 
 export default function HeartButton() {
   const songId = usePlayerStore((s) => s.songId) // diisi dari GET /music/stream
   const { ids, isPending, isToggling, toggle } = useFavorites()
+  const { isGuest, goToLogin } = useRequireLogin()
 
-  const ready = songId != null && !isPending
-  const active = ready && ids.has(songId)
+  // Pengunjung tidak memuat favorit; tombol hanya mengarahkan ke login.
+  const ready = songId != null && (isGuest || !isPending)
+  const active = !isGuest && ready && ids.has(songId)
 
   let label = 'Tambah ke favorit'
-  if (!ready) label = 'Favorit belum siap'
+  if (isGuest) label = 'Masuk untuk menambah ke favorit'
+  else if (!ready) label = 'Favorit belum siap'
   else if (active) label = 'Hapus dari favorit'
 
   return (
     <button
       type="button"
-      onClick={() => toggle(songId, !active)}
+      onClick={() => (isGuest ? goToLogin() : toggle(songId, !active))}
       disabled={!ready || isToggling}
       aria-label={label}
       aria-pressed={active}
