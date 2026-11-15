@@ -8,7 +8,7 @@ class SongPlay extends Model
 {
     public $timestamps = false;
 
-    protected $fillable = ['user_id', 'song_id', 'played_at'];
+    protected $fillable = ['user_id', 'ip_address', 'song_id', 'played_at'];
 
     protected $casts = [
         'played_at' => 'datetime',

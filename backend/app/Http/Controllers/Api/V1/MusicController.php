@@ -7,7 +7,6 @@ use App\Http\Requests\LyricsRequest;
 use App\Http\Requests\SearchMusicRequest;
 use App\Http\Requests\StreamMusicRequest;
 use App\Models\Song;
-use App\Models\User;
 use App\Services\Lyrics;
 use App\Services\SmartQueue;
 use App\Services\Trending;
@@ -68,10 +67,9 @@ class MusicController extends Controller
 
         $expires = now()->addHours(3);
 
-        // URL di server kita sendiri, ditandatangani dan terikat ke pengguna ini
+        // URL di server kita sendiri, ditandatangani; terikat hanya pada lagu dan masa berlakunya
         $playUrl = URL::temporarySignedRoute('music.audio', $expires, [
             'song' => $song->id,
-            'u'    => $request->user()->id,
         ]);
 
         return response()->json([
@@ -189,16 +187,6 @@ class MusicController extends Controller
     /** Dipanggil lewat URL bertanda tangan (tanpa token Bearer). */
     public function audio(Request $request, Song $song, YtDlp $ytDlp): JsonResponse | StreamedResponse
     {
-        // Pemilik URL (ikut ditandatangani, tidak bisa diubah) harus masih ada dan tidak diblokir
-        $owner = User::find((int) $request->query('u'));
-
-        if (! $owner || $owner->isBlocked()) {
-            return response()->json([
-                'status'  => 'error',
-                'message' => 'Anda tidak memiliki akses ke sumber daya ini.',
-            ], 403);
-        }
-
         $key = $this->streamCacheKey($song->youtube_id);
 
         // Percobaan 1 memakai cache; kalau sumber menolak (URL kedaluwarsa), ambil yang baru sekali lagi

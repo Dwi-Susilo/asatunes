@@ -39,7 +39,7 @@ class AppServiceProvider extends ServiceProvider
         );
 
         RateLimiter::for('audio', fn(Request $request) =>
-            Limit::perMinute(300)->by('audio:' . ($request->query('u') ?: $request->ip()))
+            Limit::perMinute(300)->by('audio:' . $request->ip())
         );
     }
 }
