@@ -20,7 +20,15 @@ export default function HomePage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">
-          Halo, <span className="text-emerald-400">{user.name}</span>
+          {user ? (
+            <>
+              Halo, <span className="text-emerald-400">{user.name}</span>
+            </>
+          ) : (
+            <>
+              Selamat datang di <span className="text-emerald-400">ASATunes</span>
+            </>
+          )}
         </h1>
         <p className="text-sm text-zinc-400">Lagu musik terpopuler di Indonesia</p>
       </div>

@@ -3,9 +3,14 @@ import { api, setUnauthorizedHandler } from '../lib/api.js'
 import { tokenStorage } from '../lib/tokenStorage.js'
 import { usePlayerStore } from './playerStore.js'
 
+// Satu permintaan profil bersama: AppLayout dan ProtectedRoute sama-sama memanggil
+// restoreSession(), tetapi GET /profile hanya dikirim sekali.
+let restoring = null
+
 export const useAuthStore = create((set, get) => ({
   token: tokenStorage.get(),
   user: null, // objek User dari API; diisi saat login atau loadProfile()
+  restoreError: null, // kegagalan sementara saat memulihkan profil (backend mati, 429, 5xx)
 
   // POST /auth/register mengembalikan User TANPA token (02_API.md bagian 4).
   // Pemanggil harus memanggil login() sesudahnya.
@@ -29,6 +34,26 @@ export const useAuthStore = create((set, get) => ({
     return res.data
   },
 
+  // Setelah refresh halaman: token ada di storage, user belum. 401/403 berarti token tidak
+  // berlaku lagi (atau akun diblokir): sesi dibuang dan pemakai menjadi Pengunjung.
+  // Kegagalan lain TIDAK mengeluarkan pengguna; disimpan di restoreError agar bisa dicoba lagi.
+  restoreSession() {
+    if (!get().token || get().user) return Promise.resolve()
+    if (restoring) return restoring
+
+    set({ restoreError: null })
+    restoring = get()
+      .loadProfile()
+      .catch((err) => {
+        if (err.status === 401 || err.status === 403) get().clearSession()
+        else set({ restoreError: err })
+      })
+      .finally(() => {
+        restoring = null
+      })
+    return restoring
+  },
+
   // Dipakai setelah PATCH /profile: data = User terbaru, sidebar ikut berubah.
   setUser(user) {
     set({ user })
@@ -48,7 +73,7 @@ export const useAuthStore = create((set, get) => ({
   clearSession() {
     tokenStorage.clear()
     usePlayerStore.getState().clear() // antrean tidak boleh diwarisi pengguna berikutnya
-    set({ token: null, user: null })
+    set({ token: null, user: null, restoreError: null })
   },
 }))
 

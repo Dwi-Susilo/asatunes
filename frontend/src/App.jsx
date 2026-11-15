@@ -22,10 +22,13 @@ export default function App() {
           <Route path="/register" element={<RegisterPage />} />
         </Route>
 
-        <Route element={<ProtectedRoute />}>
-          <Route element={<AppLayout />}>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/cari" element={<SearchPage />} />
+        <Route element={<AppLayout />}>
+          {/* Terbuka untuk Pengunjung (SRS 3.1) */}
+          <Route path="/" element={<HomePage />} />
+          <Route path="/cari" element={<SearchPage />} />
+
+          {/* Fitur akun: memerlukan login */}
+          <Route element={<ProtectedRoute />}>
             <Route path="/favorit" element={<FavoritesPage />} />
             <Route path="/playlist" element={<PlaylistsPage />} />
             <Route path="/playlist/:id" element={<PlaylistDetailPage />} />

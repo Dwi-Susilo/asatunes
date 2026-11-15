@@ -1,7 +1,7 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore.js'
 
-// Halaman untuk tamu (login/daftar). Yang sudah punya token dialihkan keluar:
+// Halaman untuk Pengunjung (login/daftar). Yang sudah punya token dialihkan keluar:
 // ke halaman asal bila datang dari ProtectedRoute dan asalnya bukan beranda,
 // selain itu ke beranda sesuai peran (admin -> /admin, lainnya -> /).
 // "Asal = /" dianggap tidak ada tujuan khusus, karena logout dari beranda pun

@@ -1,14 +1,19 @@
-import { useState } from 'react'
-import { NavLink, Outlet } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore.js'
 import { usePlayerStore } from '../store/playerStore.js'
 import Avatar from './Avatar.jsx'
 import AudioPlayer from './AudioPlayer.jsx'
 import PlayerBar from './PlayerBar.jsx'
 
-const NAV_ITEMS = [
+// Terbuka untuk Pengunjung (SRS 3.1)
+const PUBLIC_NAV_ITEMS = [
   { to: '/', label: 'Beranda' },
   { to: '/cari', label: 'Cari' },
+]
+
+// Fitur akun: hanya tampil bila sudah login
+const ACCOUNT_NAV_ITEMS = [
   { to: '/favorit', label: 'Favorit' },
   { to: '/playlist', label: 'Playlist' },
   { to: '/profil', label: 'Profil' },
@@ -18,17 +23,50 @@ const NAV_ITEMS = [
 const ADMIN_NAV_ITEM = { to: '/admin', label: 'Admin' }
 
 export default function AppLayout() {
+  const token = useAuthStore((s) => s.token)
   const user = useAuthStore((s) => s.user)
+  const restoreError = useAuthStore((s) => s.restoreError)
+  const restoreSession = useAuthStore((s) => s.restoreSession)
   const logout = useAuthStore((s) => s.logout)
   const hasQueue = usePlayerStore((s) => s.queue.length > 0)
   const [loggingOut, setLoggingOut] = useState(false)
+  const location = useLocation()
 
-  const navItems = user.role === 'admin' ? [...NAV_ITEMS, ADMIN_NAV_ITEM] : NAV_ITEMS
+  const isGuest = !token
+
+  // Setelah refresh halaman: token ada, user belum. Halaman publik tetap tampil selama profil dimuat.
+  useEffect(() => {
+    restoreSession()
+  }, [token, user, restoreSession])
+
+  let navItems = isGuest ? PUBLIC_NAV_ITEMS : [...PUBLIC_NAV_ITEMS, ...ACCOUNT_NAV_ITEMS]
+  if (user?.role === 'admin') navItems = [...navItems, ADMIN_NAV_ITEM]
 
   async function handleLogout() {
     setLoggingOut(true)
-    await logout() // ProtectedRoute mengalihkan ke /login begitu token hilang.
+    // Di halaman akun, ProtectedRoute mengalihkan ke /login; di halaman publik pengguna tetap di tempat.
+    await logout()
+    setLoggingOut(false)
   }
+
+  const guestActions = (
+    <div className="flex items-center gap-2">
+      <Link
+        to="/register"
+        state={{ from: location }}
+        className="rounded-md border border-zinc-700 px-3 py-1.5 text-sm hover:bg-zinc-800"
+      >
+        Daftar
+      </Link>
+      <Link
+        to="/login"
+        state={{ from: location }}
+        className="rounded-md bg-emerald-500 px-3 py-1.5 text-sm font-medium text-zinc-950 hover:bg-emerald-400"
+      >
+        Masuk
+      </Link>
+    </div>
+  )
 
   const logoutButton = (
     <button
@@ -41,6 +79,8 @@ export default function AppLayout() {
     </button>
   )
 
+  const accountActions = isGuest ? guestActions : logoutButton
+
   const linkClass = ({ isActive }) =>
     `block rounded-md px-3 py-2 ${
       isActive ? 'bg-zinc-800 text-emerald-400' : 'text-zinc-300 hover:bg-zinc-900'
@@ -52,7 +92,7 @@ export default function AppLayout() {
       <header className="border-b border-zinc-800 px-4 py-3 md:hidden">
         <div className="flex items-center justify-between">
           <span className="text-xl font-bold text-emerald-400">ASATunes</span>
-          {logoutButton}
+          {accountActions}
         </div>
         <nav className="mt-2 flex flex-wrap gap-1">
           {navItems.map((item) => (
@@ -76,14 +116,35 @@ export default function AppLayout() {
           </nav>
         </div>
         <div className="space-y-3">
-          <div className="flex items-center gap-3">
-            <Avatar name={user.name} url={user.avatar_url} />
-            <div className="min-w-0">
-              <p className="truncate text-sm font-medium">{user.name}</p>
-              <p className="truncate text-xs text-zinc-400">{user.email}</p>
-            </div>
-          </div>
-          {logoutButton}
+          {isGuest ? (
+            guestActions
+          ) : (
+            <>
+              {user ? (
+                <div className="flex items-center gap-3">
+                  <Avatar name={user.name} url={user.avatar_url} />
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium">{user.name}</p>
+                    <p className="truncate text-xs text-zinc-400">{user.email}</p>
+                  </div>
+                </div>
+              ) : restoreError ? (
+                <div className="space-y-1 text-xs text-zinc-400">
+                  <p>Profil gagal dimuat.</p>
+                  <button
+                    type="button"
+                    onClick={restoreSession}
+                    className="text-emerald-400 hover:underline"
+                  >
+                    Coba lagi
+                  </button>
+                </div>
+              ) : (
+                <p className="text-xs text-zinc-400">Memuat profil…</p>
+              )}
+              {logoutButton}
+            </>
+          )}
         </div>
       </aside>
 

@@ -2,7 +2,6 @@ import { useEffect, useRef } from 'react'
 import { api } from '../lib/api.js'
 import { setAudioElement } from '../lib/audioRef.js'
 import { fetchStream } from '../lib/music.js'
-import { useAuthStore } from '../store/authStore.js'
 import { usePlayerStore } from '../store/playerStore.js'
 import MediaSessionSync from './MediaSessionSync.jsx'
 
@@ -30,7 +29,6 @@ async function reportListen(l) {
   const sec = Math.floor(l.ms / 1000)
   l.ms = 0
   if (!songId || sec < MIN_LISTEN_SEC) return
-  if (!useAuthStore.getState().token) return // sudah keluar: jangan kirim tanpa token
   try {
     await api.post(`/music/${songId}/play`, { listened_sec: Math.min(sec, 86400) })
   } catch {
