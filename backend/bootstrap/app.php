@@ -19,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectGuestsTo(fn(Request $request) => $request->is('api/*')  ?null : '/');
 
         $middleware->alias([
+            'auth.optional' => \App\Http\Middleware\IdentifyUserIfPresent::class,
             'not.blocked' => \App\Http\Middleware\EnsureUserIsNotBlocked::class,
             'admin'       => \App\Http\Middleware\EnsureUserIsAdmin::class,
         ]);
