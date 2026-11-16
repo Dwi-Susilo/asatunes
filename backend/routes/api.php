@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\Admin\StatsController;
 use App\Http\Controllers\Api\V1\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\FavoriteController;
+use App\Http\Controllers\Api\V1\HistoryController;
 use App\Http\Controllers\Api\V1\MusicController;
 use App\Http\Controllers\Api\V1\PlaylistController;
 use App\Http\Controllers\Api\V1\PlaylistSongController;
@@ -49,6 +50,8 @@ Route::prefix('v1')->group(function () {
             Route::post('{song}', [FavoriteController::class, 'store'])->whereNumber('song');
             Route::delete('{song}', [FavoriteController::class, 'destroy'])->whereNumber('song');
         });
+
+        Route::get('history', [HistoryController::class, 'index']);
 
         // Route::apiResource('playlists', PlaylistSongController::class)->whereNumber('playlist');
         Route::apiResource('playlists', PlaylistController::class)->whereNumber('playlist');
