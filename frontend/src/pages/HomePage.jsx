@@ -22,11 +22,11 @@ export default function HomePage() {
         <h1 className="text-2xl font-bold">
           {user ? (
             <>
-              Halo, <span className="text-emerald-400">{user.name}</span>
+              Halo, <span className="text-accent-400">{user.name}</span>
             </>
           ) : (
             <>
-              Selamat datang di <span className="text-emerald-400">ASATunes</span>
+              Selamat datang di <span className="text-accent-400">ASATunes</span>
             </>
           )}
         </h1>

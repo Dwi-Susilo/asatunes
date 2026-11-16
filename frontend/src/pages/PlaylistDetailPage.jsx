@@ -18,7 +18,7 @@ function Gone({ status }) {
       <p role="alert" className="rounded-md bg-red-950 p-3 text-sm text-red-300">
         {message}
       </p>
-      <Link to="/playlist" className="text-emerald-400 hover:underline">
+      <Link to="/playlist" className="text-accent-400 hover:underline">
         Kembali ke daftar playlist
       </Link>
     </div>
@@ -116,7 +116,7 @@ export default function PlaylistDetailPage() {
                 type="button"
                 disabled={songs.length === 0}
                 onClick={() => playQueue(songs, 0)}
-                className="mt-3 rounded-md bg-emerald-500 px-4 py-2 font-medium text-zinc-950 hover:bg-emerald-400 disabled:opacity-50"
+                className="mt-3 rounded-md bg-accent-500 px-4 py-2 font-medium text-zinc-950 hover:bg-accent-400 disabled:opacity-50"
               >
                 Putar semua
               </button>

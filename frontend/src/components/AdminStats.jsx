@@ -10,7 +10,7 @@ function StatCard({ label, value }) {
   return (
     <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
       <p className="text-sm text-zinc-400">{label}</p>
-      <p className="mt-1 text-3xl font-bold text-emerald-400">{number.format(value)}</p>
+      <p className="mt-1 text-3xl font-bold text-accent-400">{number.format(value)}</p>
     </div>
   )
 }

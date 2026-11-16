@@ -1,1 +1,12 @@
 @import "tailwindcss";
+
+/* Tema ASATunes: hitam pekat dengan aksen merah (keputusan pemilik, 16 Nov 2026). */
+@theme {
+  --color-zinc-950: #000000;
+  --color-accent-200: var(--color-red-200);
+  --color-accent-300: var(--color-red-300);
+  --color-accent-400: var(--color-red-400);
+  --color-accent-500: var(--color-red-500);
+  --color-accent-900: var(--color-red-900);
+  --color-accent-950: var(--color-red-950);
+}

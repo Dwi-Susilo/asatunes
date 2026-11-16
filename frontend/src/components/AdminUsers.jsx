@@ -45,7 +45,7 @@ function readInt(value, fallback, min, max) {
 
 function Badge({ tone, children }) {
   const tones = {
-    admin: 'bg-emerald-950 text-emerald-300',
+    admin: 'bg-accent-950 text-accent-300',
     user: 'bg-zinc-800 text-zinc-300',
     active: 'bg-zinc-800 text-zinc-300',
     blocked: 'bg-red-950 text-red-300',
@@ -186,7 +186,7 @@ export default function AdminUsers() {
           className={`rounded-md p-3 text-sm ${
             feedback.type === 'error'
               ? 'bg-red-950 text-red-300'
-              : 'bg-emerald-950 text-emerald-300'
+              : 'bg-accent-950 text-accent-300'
           }`}
         >
           {feedback.text}

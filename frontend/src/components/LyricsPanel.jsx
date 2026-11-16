@@ -67,7 +67,7 @@ export default function LyricsPanel({ song, onClose }) {
                 onClick={() => seekTo(line.time)}
                 className={`text-xl transition-colors ${
                   i === active
-                    ? 'font-semibold text-emerald-400'
+                    ? 'font-semibold text-accent-400'
                     : 'text-zinc-500 hover:text-zinc-300'
                 }`}
               >

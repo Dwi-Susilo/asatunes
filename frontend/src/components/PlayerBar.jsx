@@ -69,7 +69,7 @@ export default function PlayerBar() {
                 onClick={() => setShowLyrics((v) => !v)}
                 aria-label="Lirik"
                 aria-pressed={showLyrics}
-                className={`${btn} ${showLyrics ? 'text-emerald-400' : ''}`}
+                className={`${btn} ${showLyrics ? 'text-accent-400' : ''}`}
               >
                 <LyricsIcon />
               </button>
@@ -78,7 +78,7 @@ export default function PlayerBar() {
                 onClick={toggleShuffle}
                 aria-label="Acak"
                 aria-pressed={shuffle}
-                className={`${btn} ${shuffle ? 'text-emerald-400' : ''}`}
+                className={`${btn} ${shuffle ? 'text-accent-400' : ''}`}
               >
                 <ShuffleIcon />
               </button>
@@ -94,7 +94,7 @@ export default function PlayerBar() {
                 type="button"
                 onClick={togglePlaying}
                 aria-label={isPlaying ? 'Jeda' : 'Putar'}
-                className="rounded-full bg-emerald-500 p-2 text-zinc-950 hover:bg-emerald-400"
+                className="rounded-full bg-accent-500 p-2 text-zinc-950 hover:bg-accent-400"
               >
                 {isPlaying ? <PauseIcon className="h-6 w-6" /> : <PlayIcon className="h-6 w-6" />}
               </button>
@@ -105,7 +105,7 @@ export default function PlayerBar() {
                 type="button"
                 onClick={cycleRepeat}
                 aria-label={REPEAT_LABEL[repeat]}
-                className={`relative ${btn} ${repeat !== 'off' ? 'text-emerald-400' : ''}`}
+                className={`relative ${btn} ${repeat !== 'off' ? 'text-accent-400' : ''}`}
               >
                 <RepeatIcon />
                 {repeat === 'one' && (

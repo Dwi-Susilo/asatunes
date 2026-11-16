@@ -38,7 +38,7 @@ export default function SeekBar({ fallbackDuration }) {
         onPointerUp={commit}
         onKeyUp={commit}
         aria-label="Posisi lagu"
-        className="h-1 flex-1 cursor-pointer accent-emerald-500 disabled:cursor-default disabled:opacity-40"
+        className="h-1 flex-1 cursor-pointer accent-accent-500 disabled:cursor-default disabled:opacity-40"
       />
       <span className="w-10 tabular-nums">{formatDuration(max)}</span>
     </div>

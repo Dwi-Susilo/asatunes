@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import ErrorNotice from '../components/ErrorNotice.jsx'
 import PlaylistCover from '../components/PlaylistCover.jsx'
 import PlaylistForm from '../components/PlaylistForm.jsx'
@@ -9,7 +9,9 @@ import { describeError } from '../lib/errors.js'
 export default function PlaylistsPage() {
   const { playlists, hasMorePages, isPending, error, isFetching, refetch, create, update, remove } =
     usePlaylists()
-  const [creating, setCreating] = useState(false)
+  const [params] = useSearchParams()
+  // Tombol "Playlist baru" di sidebar membuka halaman ini dengan form buat sudah terbuka.
+  const [creating, setCreating] = useState(params.get('baru') === '1')
   const [editingId, setEditingId] = useState(null)
   const [actionError, setActionError] = useState('')
 
@@ -33,7 +35,7 @@ export default function PlaylistsPage() {
           <button
             type="button"
             onClick={() => setCreating(true)}
-            className="rounded-md bg-emerald-500 px-4 py-2 font-medium text-zinc-950 hover:bg-emerald-400"
+            className="rounded-md bg-accent-500 px-4 py-2 font-medium text-zinc-950 hover:bg-accent-400"
           >
             Buat playlist
           </button>
@@ -83,7 +85,7 @@ export default function PlaylistsPage() {
                   <PlaylistCover thumbnails={p.cover_thumbnails} className="h-24 w-24" />
                 </Link>
                 <div className="min-w-0 flex-1">
-                  <Link to={`/playlist/${p.id}`} className="block truncate font-medium hover:text-emerald-400">
+                  <Link to={`/playlist/${p.id}`} className="block truncate font-medium hover:text-accent-400">
                     {p.title}
                   </Link>
                   <p className="text-xs text-zinc-400">{p.songs_count} lagu</p>

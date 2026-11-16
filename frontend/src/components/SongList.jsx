@@ -30,7 +30,7 @@ export default function SongList({ songs, onPlay, renderAction }) {
               <span className="min-w-0 flex-1 text-left">
                 <span
                   className={`block truncate text-left text-sm font-medium ${
-                    active ? 'text-emerald-400' : 'text-zinc-100'
+                    active ? 'text-accent-400' : 'text-zinc-100'
                   }`}
                 >
                   {song.title}

@@ -48,7 +48,7 @@ export default function RegisterPage() {
       footer={
         <>
           Sudah punya akun?{' '}
-          <Link to="/login" className="text-emerald-400 hover:underline">
+          <Link to="/login" className="text-accent-400 hover:underline">
             Masuk
           </Link>
         </>
@@ -91,7 +91,7 @@ export default function RegisterPage() {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full rounded-md bg-emerald-500 py-2 font-medium text-zinc-950 hover:bg-emerald-400 disabled:opacity-60"
+          className="w-full rounded-md bg-accent-500 py-2 font-medium text-zinc-950 hover:bg-accent-400 disabled:opacity-60"
         >
           {submitting ? 'Memproses…' : 'Daftar'}
         </button>

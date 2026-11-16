@@ -5,7 +5,7 @@ export default function TextField({ label, error, ...inputProps }) {
       <input
         {...inputProps}
         aria-invalid={error ? 'true' : 'false'}
-        className={`w-full rounded-md border bg-zinc-900 px-3 py-2 text-zinc-100 outline-none focus:ring-2 focus:ring-emerald-500 ${
+        className={`w-full rounded-md border bg-zinc-900 px-3 py-2 text-zinc-100 outline-none focus:ring-2 focus:ring-accent-500 ${
           error ? 'border-red-500' : 'border-zinc-700'
         }`}
       />

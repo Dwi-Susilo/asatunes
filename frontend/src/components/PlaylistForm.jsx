@@ -59,7 +59,7 @@ export default function PlaylistForm({ initial, submitLabel, onSubmit, onCancel 
         <button
           type="submit"
           disabled={submitting}
-          className="rounded-md bg-emerald-500 px-4 py-2 font-medium text-zinc-950 hover:bg-emerald-400 disabled:opacity-60"
+          className="rounded-md bg-accent-500 px-4 py-2 font-medium text-zinc-950 hover:bg-accent-400 disabled:opacity-60"
         >
           {submitting ? 'Menyimpan…' : submitLabel}
         </button>

@@ -34,7 +34,7 @@ export default function ProtectedRoute() {
         <div className="flex gap-2">
           <button
             onClick={restoreSession}
-            className="rounded-md bg-emerald-500 px-4 py-2 font-medium text-zinc-950 hover:bg-emerald-400"
+            className="rounded-md bg-accent-500 px-4 py-2 font-medium text-zinc-950 hover:bg-accent-400"
           >
             Coba lagi
           </button>

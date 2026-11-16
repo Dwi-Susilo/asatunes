@@ -38,7 +38,7 @@ export default function Avatar({ name, url, size = 'sm' }) {
   return (
     <span
       aria-hidden="true"
-      className={`${box} flex items-center justify-center bg-emerald-900 font-semibold text-emerald-200`}
+      className={`${box} flex items-center justify-center bg-accent-900 font-semibold text-accent-200`}
     >
       {initialsOf(name)}
     </span>

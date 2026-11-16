@@ -35,14 +35,14 @@ export default function LoginPage() {
       footer={
         <>
           Belum punya akun?{' '}
-          <Link to="/register" className="text-emerald-400 hover:underline">
+          <Link to="/register" className="text-accent-400 hover:underline">
             Daftar
           </Link>
         </>
       }
     >
       <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-        {notice && <p className="rounded-md bg-emerald-950 p-3 text-sm text-emerald-300">{notice}</p>}
+        {notice && <p className="rounded-md bg-accent-950 p-3 text-sm text-accent-300">{notice}</p>}
         {error.message && (
           <p role="alert" className="rounded-md bg-red-950 p-3 text-sm text-red-300">
             {error.message}
@@ -69,7 +69,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full rounded-md bg-emerald-500 py-2 font-medium text-zinc-950 hover:bg-emerald-400 disabled:opacity-60"
+          className="w-full rounded-md bg-accent-500 py-2 font-medium text-zinc-950 hover:bg-accent-400 disabled:opacity-60"
         >
           {submitting ? 'Memproses…' : 'Masuk'}
         </button>

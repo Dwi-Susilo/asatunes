@@ -83,7 +83,7 @@ export default function AvatarForm() {
       <h2 className="mb-3 text-lg font-semibold">Foto profil</h2>
       <div className="space-y-4">
         {saved && (
-          <p role="status" className="rounded-md bg-emerald-950 p-3 text-sm text-emerald-300">
+          <p role="status" className="rounded-md bg-accent-950 p-3 text-sm text-accent-300">
             Foto profil berhasil disimpan.
           </p>
         )}
@@ -123,7 +123,7 @@ export default function AvatarForm() {
                     type="button"
                     onClick={handleUpload}
                     disabled={submitting}
-                    className="rounded-md bg-emerald-500 px-3 py-1.5 text-sm font-medium text-zinc-950 hover:bg-emerald-400 disabled:opacity-60"
+                    className="rounded-md bg-accent-500 px-3 py-1.5 text-sm font-medium text-zinc-950 hover:bg-accent-400 disabled:opacity-60"
                   >
                     {submitting ? 'Mengunggah…' : 'Unggah'}
                   </button>

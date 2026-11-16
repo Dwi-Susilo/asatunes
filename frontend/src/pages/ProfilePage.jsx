@@ -71,7 +71,7 @@ export default function ProfilePage() {
         <h2 className="mb-3 text-lg font-semibold">Ubah nama</h2>
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           {saved && (
-            <p role="status" className="rounded-md bg-emerald-950 p-3 text-sm text-emerald-300">
+            <p role="status" className="rounded-md bg-accent-950 p-3 text-sm text-accent-300">
               Nama berhasil disimpan.
             </p>
           )}
@@ -92,7 +92,7 @@ export default function ProfilePage() {
           <button
             type="submit"
             disabled={submitting || unchanged}
-            className="rounded-md bg-emerald-500 px-4 py-2 font-medium text-zinc-950 hover:bg-emerald-400 disabled:opacity-60"
+            className="rounded-md bg-accent-500 px-4 py-2 font-medium text-zinc-950 hover:bg-accent-400 disabled:opacity-60"
           >
             {submitting ? 'Menyimpan…' : 'Simpan'}
           </button>

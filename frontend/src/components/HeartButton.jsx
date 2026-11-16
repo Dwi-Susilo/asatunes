@@ -25,7 +25,7 @@ export default function HeartButton() {
       aria-pressed={active}
       title={label}
       className={`rounded-full p-2 hover:bg-zinc-800 disabled:opacity-40 ${
-        active ? 'text-emerald-400' : ''
+        active ? 'text-accent-400' : ''
       }`}
     >
       <svg

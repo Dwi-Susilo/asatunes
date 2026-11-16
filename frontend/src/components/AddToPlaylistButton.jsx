@@ -60,7 +60,7 @@ export default function AddToPlaylistButton() {
         aria-expanded={open}
         title={label}
         className={`rounded-full p-2 hover:bg-zinc-800 disabled:opacity-40 ${
-          open ? 'text-emerald-400' : ''
+          open ? 'text-accent-400' : ''
         }`}
       >
         <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden="true">
