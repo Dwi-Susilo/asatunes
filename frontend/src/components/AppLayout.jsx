@@ -4,7 +4,6 @@ import { usePlaylists } from '../hooks/usePlaylists.js'
 import { useAuthStore } from '../store/authStore.js'
 import { usePlayerStore } from '../store/playerStore.js'
 import Avatar from './Avatar.jsx'
-import AudioPlayer from './AudioPlayer.jsx'
 import {
   HeartFilledIcon,
   HomeIcon,
@@ -14,7 +13,6 @@ import {
   ShieldIcon,
   UserIcon,
 } from './Icons.jsx'
-import PlayerBar from './PlayerBar.jsx'
 import PlaylistCover from './PlaylistCover.jsx'
 
 const MIN_CHARS = 2 // sama dengan batas server untuk pencarian
@@ -261,8 +259,6 @@ export default function AppLayout() {
         </main>
       </div>
 
-      <AudioPlayer />
-      <PlayerBar />
     </div>
   )
 }

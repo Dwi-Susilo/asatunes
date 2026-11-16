@@ -66,13 +66,16 @@ export const useAuthStore = create((set, get) => ({
     } catch {
       /* token tetap dibuang di sisi klien */
     } finally {
-      get().clearSession()
+      get().clearSession({ clearPlayer: true })
     }
   },
 
-  clearSession() {
+  // Sesi berakhir karena 401/403 (token kedaluwarsa atau akun diblokir): pemutaran tetap
+  // berjalan (keputusan K7), karena rute musik terbuka untuk Pengunjung. Hanya keluar yang
+  // disengaja (logout) yang mengosongkan antrean, supaya tidak diwarisi pengguna berikutnya.
+  clearSession({ clearPlayer = false } = {}) {
     tokenStorage.clear()
-    usePlayerStore.getState().clear() // antrean tidak boleh diwarisi pengguna berikutnya
+    if (clearPlayer) usePlayerStore.getState().clear()
     set({ token: null, user: null, restoreError: null })
   },
 }))
