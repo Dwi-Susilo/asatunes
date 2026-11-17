@@ -19,6 +19,16 @@ function buildOrder(n, currentIdx, shuffle) {
   return { order: [currentIdx, ...rest], pos: 0 }
 }
 
+// Autoplay (SRS 6.C): pilihan pengguna, diingat di peramban. Bawaan: mati.
+const AUTOPLAY_KEY = 'asatunes_autoplay'
+function readAutoplay() {
+  try {
+    return localStorage.getItem(AUTOPLAY_KEY) === '1'
+  } catch {
+    return false // penyimpanan tidak tersedia: pakai keadaan awal
+  }
+}
+
 const REPEAT_CYCLE = { off: 'all', all: 'one', one: 'off' }
 
 // `nonce` naik setiap lagu aktif berganti atau perlu dimuat ulang; AudioPlayer
@@ -36,6 +46,8 @@ const emptyState = {
   time: 0,
   duration: 0,
   notice: '',
+  autoState: 'idle', // pengambilan rekomendasi untuk lagu aktif: 'idle' | 'loading' | 'done'
+  awaitingMore: false, // lagu terakhir selesai selagi rekomendasi masih dimuat
 }
 
 const trackChange = (s) => ({
@@ -45,6 +57,8 @@ const trackChange = (s) => ({
   songId: null,
   time: 0,
   duration: 0,
+  autoState: 'idle',
+  awaitingMore: false,
 })
 
 let noticeTimer
@@ -56,6 +70,7 @@ export const usePlayerStore = create((set, get) => ({
   ...emptyState,
   shuffle: false,
   repeat: 'off', // 'off' | 'all' | 'one'
+  autoplay: readAutoplay(),
 
   playQueue(items, startIndex = 0) {
     if (!items.length) return
@@ -109,6 +124,36 @@ export const usePlayerStore = create((set, get) => ({
 
   cycleRepeat() {
     set({ repeat: REPEAT_CYCLE[get().repeat] })
+  },
+
+  toggleAutoplay() {
+    const autoplay = !get().autoplay
+    try {
+      localStorage.setItem(AUTOPLAY_KEY, autoplay ? '1' : '0')
+    } catch {
+      /* tidak diingat, tetap berlaku untuk sesi ini */
+    }
+    set({ autoplay, ...(autoplay ? {} : { awaitingMore: false }) })
+  },
+
+  // Menambah lagu ke ujung antrean tanpa mengganggu lagu aktif. Lagu yang sudah ada di
+  // antrean dilewati. Saat shuffle, lagu baru ditaruh di belakang urutan yang ada.
+  // Mengembalikan jumlah lagu yang benar-benar ditambahkan.
+  appendToQueue(items) {
+    const { queue, order } = get()
+    const known = new Set(queue.map((q) => q.youtube_id))
+    const fresh = []
+    for (const item of items) {
+      if (known.has(item.youtube_id)) continue
+      known.add(item.youtube_id)
+      fresh.push(item)
+    }
+    if (!fresh.length) return 0
+    set({
+      queue: [...queue, ...fresh],
+      order: [...order, ...fresh.map((_, i) => queue.length + i)],
+    })
+    return fresh.length
   },
 
   setPlaying(isPlaying) {

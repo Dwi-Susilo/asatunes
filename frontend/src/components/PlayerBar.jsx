@@ -4,6 +4,7 @@ import { usePlayerStore } from '../store/playerStore.js'
 import Cover from './Cover.jsx'
 import HeartButton from './HeartButton.jsx'
 import {
+  AutoplayIcon,
   LyricsIcon,
   NextIcon,
   PauseIcon,
@@ -34,6 +35,8 @@ export default function PlayerBar() {
   const prev = usePlayerStore((s) => s.prev)
   const toggleShuffle = usePlayerStore((s) => s.toggleShuffle)
   const cycleRepeat = usePlayerStore((s) => s.cycleRepeat)
+  const autoplay = usePlayerStore((s) => s.autoplay)
+  const toggleAutoplay = usePlayerStore((s) => s.toggleAutoplay)
   const [showLyrics, setShowLyrics] = useState(false)
 
   if (!current) return null
@@ -72,6 +75,16 @@ export default function PlayerBar() {
                 className={`${btn} ${showLyrics ? 'text-accent-400' : ''}`}
               >
                 <LyricsIcon />
+              </button>
+              <button
+                type="button"
+                onClick={toggleAutoplay}
+                aria-label="Autoplay"
+                aria-pressed={autoplay}
+                title={autoplay ? 'Autoplay menyala' : 'Autoplay mati'}
+                className={`${btn} ${autoplay ? 'text-accent-400' : ''}`}
+              >
+                <AutoplayIcon />
               </button>
               <button
                 type="button"

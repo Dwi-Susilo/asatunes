@@ -221,8 +221,14 @@ export default function AudioPlayer() {
       playAudio(audio)
       return
     }
-    // next() melingkar bila repeat 'all'; di ujung antrean (repeat mati) berhenti.
-    if (!player.next()) player.setPlaying(false)
+    // next() melingkar bila repeat 'all'; di ujung antrean (repeat mati) berhenti,
+    // kecuali Autoplay menyala dan rekomendasi sedang dimuat: tunggu (lihat AutoQueue).
+    if (player.next()) return
+    if (player.autoplay && player.repeat !== 'all' && player.autoState === 'loading') {
+      usePlayerStore.setState({ awaitingMore: true, status: 'loading' })
+      return
+    }
+    player.setPlaying(false)
   }
 
   return (

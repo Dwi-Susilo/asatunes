@@ -90,3 +90,9 @@ export const PlusIcon = (props) => (
     <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
   </Svg>
 )
+
+export const AutoplayIcon = (props) => (
+  <Svg {...props}>
+    <path d="M4 6h12v2H4zM4 10h12v2H4zM4 14h8v2H4zM14 14v6l5-3-5-3z" />
+  </Svg>
+)

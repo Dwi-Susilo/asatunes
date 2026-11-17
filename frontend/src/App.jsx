@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import AdminRoute from './components/AdminRoute.jsx'
 import AppLayout from './components/AppLayout.jsx'
 import AudioPlayer from './components/AudioPlayer.jsx'
+import AutoQueue from './components/AutoQueue.jsx'
 import GuestRoute from './components/GuestRoute.jsx'
 import PlayerBar from './components/PlayerBar.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
@@ -47,6 +48,7 @@ export default function App() {
 
       {/* Di luar tata letak halaman: pemutaran tidak putus saat pindah ke /login (sesi habis, K7). */}
       <AudioPlayer />
+      <AutoQueue />
       <PlayerBar />
     </BrowserRouter>
   )

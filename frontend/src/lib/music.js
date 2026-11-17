@@ -37,3 +37,11 @@ export async function fetchLyrics({ title, artist, duration }, signal) {
     throw err
   }
 }
+
+// GET /music/{youtube_id}/recommendations (02_API.md 6.6). Daftar Kandidat lagu + `source`,
+// bisa kurang dari `limit` atau kosong. 404 bila lagu belum pernah lewat /music/stream;
+// 429/503 seperti endpoint yt-dlp lain. Dilempar sebagai ApiError.
+export async function fetchRecommendations(youtubeId, signal) {
+  const res = await api.get(`/music/${encodeURIComponent(youtubeId)}/recommendations`, { signal })
+  return res.data
+}
