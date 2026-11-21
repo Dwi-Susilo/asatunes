@@ -66,6 +66,11 @@ export default function LoginPage() {
           error={error.fields.password}
           required
         />
+        <p className="text-right text-sm">
+          <Link to="/lupa-password" className="text-accent-400 hover:underline">
+            Lupa kata sandi?
+          </Link>
+        </p>
         <button
           type="submit"
           disabled={submitting}
