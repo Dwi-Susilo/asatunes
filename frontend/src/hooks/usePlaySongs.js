@@ -10,3 +10,13 @@ export function usePlaySongs() {
     navigate('/putar')
   }
 }
+
+// Memutar satu lagu dengan "Berikutnya" berisi rekomendasi, lalu membuka /putar (K6).
+export function usePlayRadio() {
+  const playRadio = usePlayerStore((s) => s.playRadio)
+  const navigate = useNavigate()
+  return (song) => {
+    playRadio(song)
+    navigate('/putar')
+  }
+}

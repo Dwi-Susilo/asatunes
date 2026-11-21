@@ -6,12 +6,12 @@ import Cover from '../components/Cover.jsx'
 import ErrorNotice from '../components/ErrorNotice.jsx'
 import HeartButton from '../components/HeartButton.jsx'
 import LyricsPanel from '../components/LyricsPanel.jsx'
-import { fetchRecommendations } from '../lib/music.js'
+import { fetchRelated } from '../lib/music.js'
 import { formatDuration } from '../lib/songs.js'
 import { usePlayerStore } from '../store/playerStore.js'
 
 const TABS = [
-  { id: 'antrean', label: 'Antrean' },
+  { id: 'antrean', label: 'Berikutnya' },
   { id: 'lirik', label: 'Lirik' },
   { id: 'terkait', label: 'Terkait' },
 ]
@@ -72,15 +72,17 @@ function QueueTab() {
   )
 }
 
-// Rekomendasi untuk lagu yang sedang diputar (GET /music/{youtube_id}/recommendations).
-// Baru diminta setelah /music/stream berhasil (songId terisi); sebelum itu server menjawab 404.
+// Terkait: lagu artis lain dari internet, acak (GET /music/{youtube_id}/related). Berbeda dari
+// "Berikutnya", jadi lagu yang sudah ada di antrean disembunyikan. Baru diminta setelah
+// /music/stream berhasil (songId terisi); sebelum itu server menjawab 404.
 function RelatedTab({ current }) {
   const songId = usePlayerStore((s) => s.songId)
   const playQueue = usePlayerStore((s) => s.playQueue)
+  const queue = usePlayerStore((s) => s.queue)
 
   const { data, error, isFetching, refetch } = useQuery({
-    queryKey: ['recommendations', current.youtube_id],
-    queryFn: ({ signal }) => fetchRecommendations(current.youtube_id, signal),
+    queryKey: ['related', current.youtube_id],
+    queryFn: ({ signal }) => fetchRelated(current.youtube_id, 30, signal),
     enabled: songId != null,
     staleTime: 30 * 60 * 1000,
     retry: false, // 429/503 tidak pulih dalam hitungan detik
@@ -89,7 +91,8 @@ function RelatedTab({ current }) {
   if (songId == null) return <p className="text-zinc-400">Menyiapkan lagu…</p>
   if (error) return <ErrorNotice error={error} onRetry={refetch} retrying={isFetching} />
   if (!data) return <p className="text-zinc-400">Memuat lagu terkait…</p>
-  const songs = data.filter((s) => s.youtube_id !== current.youtube_id)
+  const inQueue = new Set(queue.map((q) => q.youtube_id))
+  const songs = data.filter((s) => s.youtube_id !== current.youtube_id && !inQueue.has(s.youtube_id))
   if (songs.length === 0) return <p className="text-zinc-400">Belum ada lagu terkait.</p>
 
   return (

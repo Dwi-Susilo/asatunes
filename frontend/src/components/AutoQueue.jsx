@@ -14,10 +14,13 @@ export default function AutoQueue() {
   const youtubeId = usePlayerStore((s) => s.queue[s.order[s.pos]]?.youtube_id)
   const songId = usePlayerStore((s) => s.songId)
   const nonce = usePlayerStore((s) => s.nonce)
+  const radioFill = usePlayerStore((s) => s.radioFill)
   const requested = useRef(null)
 
   useEffect(() => {
-    if (!autoplay || repeat === 'all' || !isLast || songId == null || !youtubeId) return
+    // radioFill (lagu dipilih dari daftar): isi "Berikutnya" sekali, tanpa melihat Autoplay atau Ulangi.
+    const wantFill = radioFill || (autoplay && repeat !== 'all')
+    if (!wantFill || !isLast || songId == null || !youtubeId) return
     const key = `${nonce}:${youtubeId}`
     if (requested.current === key) return
     requested.current = key
@@ -27,7 +30,7 @@ export default function AutoQueue() {
     player.setState({ autoState: 'loading' })
 
     function finish(added) {
-      player.setState({ autoState: 'done' })
+      player.setState({ autoState: 'done', radioFill: false })
       const { awaitingMore, next, setPlaying } = player.getState()
       if (!awaitingMore) return
       player.setState({ awaitingMore: false })
@@ -40,7 +43,7 @@ export default function AutoQueue() {
       .catch(() => {
         if (controller.signal.aborted) return
         if (player.getState().awaitingMore) {
-          player.getState().notify('Antrean otomatis tidak tersedia saat ini.')
+          player.getState().notify('Lagu berikutnya tidak tersedia saat ini.')
         }
         finish(0)
       })
@@ -53,7 +56,7 @@ export default function AutoQueue() {
         player.setState({ autoState: 'idle' })
       }
     }
-  }, [autoplay, repeat, isLast, youtubeId, songId, nonce])
+  }, [autoplay, repeat, isLast, youtubeId, songId, nonce, radioFill])
 
   return null
 }

@@ -41,6 +41,15 @@ export async function fetchLyrics({ title, artist, duration }, signal) {
 // GET /music/{youtube_id}/recommendations (02_API.md 6.6). Daftar Kandidat lagu + `source`,
 // bisa kurang dari `limit` atau kosong. 404 bila lagu belum pernah lewat /music/stream;
 // 429/503 seperti endpoint yt-dlp lain. Dilempar sebagai ApiError.
+// GET /music/{youtube_id}/related?limit= -> data: lagu artis lain dari internet, urutan acak
+// (tab Terkait). Dipisah dari rekomendasi, yang hanya berisi artis atau album yang sama.
+export async function fetchRelated(youtubeId, limit = 20, signal) {
+  const res = await api.get(`/music/${encodeURIComponent(youtubeId)}/related?limit=${limit}`, {
+    signal,
+  })
+  return res.data
+}
+
 export async function fetchRecommendations(youtubeId, signal) {
   const res = await api.get(`/music/${encodeURIComponent(youtubeId)}/recommendations`, { signal })
   return res.data

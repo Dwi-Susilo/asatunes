@@ -1,9 +1,8 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
+import { hasBottomNav } from '../lib/layout.js'
 import { previousOrRestart } from '../lib/audioRef.js'
 import { usePlayerStore } from '../store/playerStore.js'
-import AddToPlaylistButton from './AddToPlaylistButton.jsx'
 import Cover from './Cover.jsx'
-import HeartButton from './HeartButton.jsx'
 import {
   ChevronUpIcon,
   NextIcon,
@@ -22,8 +21,8 @@ const REPEAT_LABEL = {
   one: 'Ulangi: satu lagu',
 }
 
-// Bilah pemutar bawah. Tombol Favorit dan tambah-ke-playlist ada di sisi kanan, sebelum
-// volume (diubah 20 Nov 2026). Lirik dan Autoplay tetap di halaman /putar.
+// Bilah pemutar bawah. Tombol Favorit dan tambah-ke-playlist, lirik, dan Autoplay ada di
+// halaman /putar (keputusan pemilik, 17 Nov 2026).
 export default function PlayerBar() {
   const current = usePlayerStore((s) => s.queue[s.order[s.pos]])
   const isPlaying = usePlayerStore((s) => s.isPlaying)
@@ -39,12 +38,18 @@ export default function PlayerBar() {
   const cycleRepeat = usePlayerStore((s) => s.cycleRepeat)
   const setVolume = usePlayerStore((s) => s.setVolume)
 
+  const withBottomNav = hasBottomNav(useLocation().pathname)
+
   if (!current) return null
 
   const btn = 'rounded-full p-2 hover:bg-zinc-800'
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-30 border-t border-zinc-800 bg-zinc-950/95 backdrop-blur">
+    <div
+      className={`fixed inset-x-0 bottom-0 z-30 border-t border-zinc-800 bg-zinc-950/95 backdrop-blur ${
+        withBottomNav ? 'max-md:bottom-[calc(3.5rem+env(safe-area-inset-bottom))]' : ''
+      }`}
+    >
       {notice && (
         <p role="status" className="bg-red-950 px-3 py-1 text-center text-sm text-red-300">
           {notice}
@@ -106,27 +111,21 @@ export default function PlayerBar() {
             </button>
           </div>
 
-          <div className="flex flex-1 items-center justify-end gap-2 text-zinc-300">
-            <div className="hidden items-center gap-1 sm:flex">
-              <HeartButton />
-              <AddToPlaylistButton />
-            </div>
-            <div className="hidden items-center gap-2 md:flex">
-              <VolumeIcon className="h-5 w-5" />
-              <input
-                type="range"
-                min={0}
-                max={1}
-                step={0.05}
-                value={volume}
-                onChange={(e) => setVolume(Number(e.target.value))}
-                aria-label="Volume"
-                className="h-1 w-24 cursor-pointer accent-accent-500"
-              />
-              <Link to="/putar" aria-label="Buka pemutar" className={btn}>
-                <ChevronUpIcon className="h-6 w-6" />
-              </Link>
-            </div>
+          <div className="hidden flex-1 items-center justify-end gap-2 text-zinc-300 md:flex">
+            <VolumeIcon className="h-5 w-5" />
+            <input
+              type="range"
+              min={0}
+              max={1}
+              step={0.05}
+              value={volume}
+              onChange={(e) => setVolume(Number(e.target.value))}
+              aria-label="Volume"
+              className="h-1 w-24 cursor-pointer accent-accent-500"
+            />
+            <Link to="/putar" aria-label="Buka pemutar" className={btn}>
+              <ChevronUpIcon className="h-6 w-6" />
+            </Link>
           </div>
         </div>
 

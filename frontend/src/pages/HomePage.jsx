@@ -1,13 +1,13 @@
 import { useQuery } from '@tanstack/react-query'
 import ErrorNotice from '../components/ErrorNotice.jsx'
-import SongList from '../components/SongList.jsx'
+import SongCard from '../components/SongCard.jsx'
 import { fetchTrending } from '../lib/music.js'
 import { useAuthStore } from '../store/authStore.js'
-import { usePlaySongs } from '../hooks/usePlaySongs.js'
+import { usePlayRadio } from '../hooks/usePlaySongs.js'
 
 export default function HomePage() {
   const user = useAuthStore((s) => s.user)
-  const playSongs = usePlaySongs()
+  const playRadio = usePlayRadio()
 
   const { data, error, isPending, isFetching, refetch } = useQuery({
     queryKey: ['trending'],
@@ -43,7 +43,13 @@ export default function HomePage() {
         {data && data.length === 0 && <p className="text-zinc-400">Belum ada lagu trending.</p>}
 
         {data && data.length > 0 && (
-          <SongList songs={data} onPlay={(index) => playSongs(data, index)} />
+          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5">
+            {data.map((song, index) => (
+              <li key={`${song.youtube_id}-${index}`} className="min-w-0">
+                <SongCard song={song} onPlay={() => playRadio(song)} />
+              </li>
+            ))}
+          </ul>
         )}
       </section>
     </div>

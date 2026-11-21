@@ -48,6 +48,7 @@ const emptyState = {
   notice: '',
   autoState: 'idle', // pengambilan rekomendasi untuk lagu aktif: 'idle' | 'loading' | 'done'
   awaitingMore: false, // lagu terakhir selesai selagi rekomendasi masih dimuat
+  radioFill: false, // antrean baru berisi satu lagu: isi "Berikutnya" dari rekomendasi (seperti radio)
 }
 
 const trackChange = (s) => ({
@@ -59,6 +60,7 @@ const trackChange = (s) => ({
   duration: 0,
   autoState: 'idle',
   awaitingMore: false,
+  radioFill: false,
 })
 
 let noticeTimer
@@ -80,7 +82,15 @@ export const usePlayerStore = create((set, get) => ({
       queue: items,
       ...buildOrder(items.length, idx, s.shuffle),
       ...trackChange(s),
+      radioFill: false,
     }))
+  },
+
+  // Memutar satu lagu dengan antrean "Berikutnya" yang diisi otomatis dari rekomendasi lagu itu
+  // (seperti radio di YouTube Music). Dipakai saat lagu dipilih dari Beranda atau hasil Cari.
+  playRadio(song) {
+    get().playQueue([song], 0)
+    set({ radioFill: true })
   },
 
   // Mengembalikan true bila pindah lagu. Di ujung antrean dengan repeat 'off',
