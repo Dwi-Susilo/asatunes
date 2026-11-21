@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { usePlaylists } from '../hooks/usePlaylists.js'
 import { useRequireLogin } from '../hooks/useRequireLogin.js'
 import { describeError } from '../lib/errors.js'
-import { addSongToPlaylist } from '../lib/playlists.js'
+import { addSongToPlaylist, createPlaylist } from '../lib/playlists.js'
 import { useAuthStore } from '../store/authStore.js'
 import { usePlayerStore } from '../store/playerStore.js'
 
@@ -19,6 +19,8 @@ export default function AddToPlaylistButton({ labeled = false }) {
   const [openFor, setOpenFor] = useState(null)
   const open = openFor !== null && openFor === songId
   const wrapRef = useRef(null)
+  const [creating, setCreating] = useState(false)
+  const [newTitle, setNewTitle] = useState('')
 
   const add = useMutation({
     mutationFn: ({ playlistId }) => addSongToPlaylist(playlistId, songId),
@@ -31,6 +33,32 @@ export default function AddToPlaylistButton({ labeled = false }) {
     onError: (err) =>
       usePlayerStore.getState().notify(describeError(err).message || 'Gagal menambah lagu.'),
   })
+
+  // Buat playlist baru lalu langsung memasukkan lagu yang sedang diputar.
+  const createAndAdd = useMutation({
+    mutationFn: async (title) => {
+      const playlist = await createPlaylist({ title })
+      const result = await addSongToPlaylist(playlist.id, songId)
+      return { result, title: playlist.title ?? title }
+    },
+    onSuccess: ({ title }) => {
+      usePlayerStore.getState().notify(`Playlist "${title}" dibuat, lagu ditambahkan.`)
+      queryClient.invalidateQueries({ queryKey: ['playlists', userId] })
+      queryClient.invalidateQueries({ queryKey: ['playlist', userId] })
+      setNewTitle('')
+      setCreating(false)
+      setOpenFor(null)
+    },
+    onError: (err) =>
+      usePlayerStore.getState().notify(describeError(err).message || 'Gagal membuat playlist.'),
+  })
+
+  function submitNew(e) {
+    e.preventDefault()
+    const title = newTitle.trim()
+    if (!title || createAndAdd.isPending) return
+    createAndAdd.mutate(title)
+  }
 
   // Tutup dengan Escape atau klik di luar menu.
   useEffect(() => {
@@ -84,9 +112,7 @@ export default function AddToPlaylistButton({ labeled = false }) {
           {isPending && <p className="px-3 py-2 text-sm text-zinc-400">Memuat…</p>}
           {error && <p className="px-3 py-2 text-sm text-red-300">Gagal memuat playlist.</p>}
           {!isPending && !error && playlists.length === 0 && (
-            <p className="px-3 py-2 text-sm text-zinc-400">
-              Belum ada playlist. Buat dulu di menu Playlist.
-            </p>
+            <p className="px-3 py-2 text-sm text-zinc-400">Belum ada playlist.</p>
           )}
           {playlists.map((p) => (
             <button
@@ -104,6 +130,39 @@ export default function AddToPlaylistButton({ labeled = false }) {
               <span className="ml-2 text-xs text-zinc-500">{p.songs_count}</span>
             </button>
           ))}
+          {!isPending && !error && (
+            <div className="mt-1 border-t border-zinc-800 pt-1">
+              {creating ? (
+                <form onSubmit={submitNew} className="flex items-center gap-1 p-1">
+                  <input
+                    autoFocus
+                    value={newTitle}
+                    onChange={(e) => setNewTitle(e.target.value)}
+                    maxLength={100}
+                    placeholder="Nama playlist"
+                    aria-label="Nama playlist baru"
+                    className="min-w-0 flex-1 rounded border border-zinc-700 bg-zinc-950 px-2 py-1 text-sm text-zinc-100 outline-none focus:border-accent-500"
+                  />
+                  <button
+                    type="submit"
+                    disabled={!newTitle.trim() || createAndAdd.isPending}
+                    className="rounded bg-accent-500 px-2 py-1 text-sm font-medium text-white hover:bg-accent-400 disabled:opacity-50"
+                  >
+                    {createAndAdd.isPending ? '…' : 'Buat'}
+                  </button>
+                </form>
+              ) : (
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => setCreating(true)}
+                  className="block w-full rounded px-3 py-2 text-left text-sm text-accent-400 hover:bg-zinc-800"
+                >
+                  + Playlist baru
+                </button>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>
