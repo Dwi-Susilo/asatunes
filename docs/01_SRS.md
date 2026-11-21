@@ -1,4 +1,4 @@
-# Software Requirements Specification (SRS) - ASATunes v1.3
+# Software Requirements Specification (SRS) - ASATunes v1.4
 
 ## Riwayat Revisi
 | Versi | Perubahan |
@@ -8,9 +8,10 @@
 | 1.1 (rev. 24 Okt 2026) | Catatan revisi di akhir dokumen v1.1 agar sesuai dengan implementasi backend |
 | 1.2 | Disesuaikan dengan implementasi backend sampai Langkah 36 dan `02_API.md` v1.1: `proxy-audio` diganti URL audio bertanda tangan (`play_url`); reorder playlist memakai `PUT /playlists/{id}/songs/order`; pencarian disaring; Smart Queue disesuaikan; batas 500 lagu per playlist; tabel throttle lengkap; konvensi respons dan kode status; pembedaan objek Kandidat lagu dan Lagu; kriteria penerimaan diberi status pengujian; keputusan yang belum diambil dicatat di bagian 8 |
 | 1.2 (rev. 24 Okt 2026) | Butir bagian 9 dicocokkan dengan kode: daftar kata penyaring, kata normalisasi Smart Queue, kunci cache rekomendasi, kolom `users`, aturan register/login |
-| 1.3 (rancangan, 30 Okt 2026) | Menambah aktor **Tamu** (mendengarkan musik tanpa akun); endpoint baca musik (`search`, `trending`, `lyrics`, `recommendations`, `stream`, `play`) terbuka untuk umum; `play_url` tidak lagi terikat ke pengguna; pembatas laju per IP untuk Tamu; kolom `song_plays.ip_address`; blokir hanya menutup fitur akun; pernyataan publikasi di 2.D diubah; bagian 10 Antarmuka Web. **Perubahan ini masih rancangan: backend belum mengikutinya.** |
-| 1.3 (rev. 15 Nov 2026) | Mengikuti diagram use case terbaru: aktor **Tamu** diganti nama menjadi **Pengunjung** dan **User** menjadi **Pengguna** (di seluruh dokumen kecuali riwayat revisi ini); aktor memakai **pewarisan** (Pengguna mewarisi Pengunjung, Admin mewarisi Pengguna); menambah use case **Lupa password** (Pengunjung) dan **Lihat riwayat lagu diputar** (Pengguna); catatan diagram tentang akun `blocked` dicatat di Keputusan Terbuka D12; rincian Lupa password dan riwayat belum ditetapkan (D13, D14); label peran dan perlakuan Registrasi/Login bagi yang sudah login (D15, D16). **Masih rancangan: backend dan frontend belum mengikutinya.** |
-| 1.3 (rev. 15 Nov 2026, keputusan) | Keputusan pemilik: **D12** (akun `blocked` tetap memakai perilaku sekarang), **D13** (Lupa password lewat email berisi token), **D14** (Riwayat memakai `song_plays`), **D15** (label peran di dokumen diganti; objek **User** dan nilai `role` tetap), **D16** (server tidak menolak Registrasi/Login/Lupa password bagi pemegang token), dan **K1** (identitas opsional pada endpoint musik terbuka); ditambah **D9** (IP Pengunjung disimpan sebagai HMAC-SHA256 dengan kunci aplikasi, `Varchar(64)`, dikosongkan setelah 1 hari) dan **K3** (cooldown pemutaran lewat Cache). Rincian D13 dan D14 yang tersisa tetap di Keputusan Terbuka. **Masih rancangan: backend dan frontend belum mengikutinya.** |
+| 1.3 (rancangan, 30 Okt 2026) | Menambah aktor **Tamu** (mendengarkan musik tanpa akun); endpoint baca musik (`search`, `trending`, `lyrics`, `recommendations`, `stream`, `play`) terbuka untuk umum; `play_url` tidak lagi terikat ke pengguna; pembatas laju per IP untuk Tamu; kolom `song_plays.ip_address`; blokir hanya menutup fitur akun; pernyataan publikasi di 2.D diubah; bagian 10 Antarmuka Web. Status: backend dan frontend kini mengikutinya (lihat rev. 21 Nov 2026). |
+| 1.3 (rev. 15 Nov 2026) | Mengikuti diagram use case terbaru: aktor **Tamu** diganti nama menjadi **Pengunjung** dan **User** menjadi **Pengguna** (di seluruh dokumen kecuali riwayat revisi ini); aktor memakai **pewarisan** (Pengguna mewarisi Pengunjung, Admin mewarisi Pengguna); menambah use case **Lupa password** (Pengunjung) dan **Lihat riwayat lagu diputar** (Pengguna); catatan diagram tentang akun `blocked` dicatat di Keputusan Terbuka D12; rincian Lupa password dan riwayat belum ditetapkan (D13, D14); label peran dan perlakuan Registrasi/Login bagi yang sudah login (D15, D16). Status: backend dan frontend kini mengikutinya (lihat rev. 21 Nov 2026). |
+| 1.3 (rev. 15 Nov 2026, keputusan) | Keputusan pemilik: **D12** (akun `blocked` tetap memakai perilaku sekarang), **D13** (Lupa password lewat email berisi token), **D14** (Riwayat memakai `song_plays`), **D15** (label peran di dokumen diganti; objek **User** dan nilai `role` tetap), **D16** (server tidak menolak Registrasi/Login/Lupa password bagi pemegang token), dan **K1** (identitas opsional pada endpoint musik terbuka); ditambah **D9** (IP Pengunjung disimpan sebagai HMAC-SHA256 dengan kunci aplikasi, `Varchar(64)`, dikosongkan setelah 1 hari) dan **K3** (cooldown pemutaran lewat Cache); ditambah **K6** (memutar lagu memindahkan tampilan ke Halaman Pemutar `/putar`), **K7** (pemutaran tetap berjalan bila sesi berakhir saat mendengarkan), dan **D10** (tab Terkait ditiadakan). Rincian D11 (slot yt-dlp tetap bersama), D13 (Lupa password), dan D14 (Riwayat) diputuskan pada 16 Nov 2026 (lihat 3.1, 3.3, 4.5, 4.6, dan 6.A). Status: backend dan frontend kini mengikutinya (lihat rev. 21 Nov 2026). |
+| 1.4 (rev. 21 Nov 2026) | Dokumen disesuaikan dengan implementasi: **backend tahap B1 sampai B8** (72 tes lulus) dan **frontend tahap F1 sampai F9** sudah dibangun. Bagian 10 ditulis ulang menurut tampilan yang diputuskan pemilik (17 Nov 2026): **K8** tab **Terkait** ada (menggantikan D10 dan butir "di luar lingkup" pada 10.E); **K9** tombol suka dan "tambah ke playlist" dipindah dari bilah bawah ke Halaman Pemutar `/putar`; **K10** sakelar Autoplay bawaan mati dan pilihannya diingat di peramban (`localStorage`); **K11** tema hitam pekat dengan aksen merah; slider volume di bilah bawah (tidak disimpan); sampul saja tanpa video; tanpa chip penyaring, hamburger, cast, Explore, Upgrade, tombol tidak suka, serta jumlah tayang/suka; dashboard Admin bertata letak terpisah (`/admin/pengguna`, `/admin/statistik`); menu bawah di ponsel; halaman `/riwayat`, `/lupa-password`, `/reset-password`. Bagian 9 dan catatan kriteria 7.5 diperbarui. Dua hal baru dicatat terbuka di bagian 8 (D17, D18). |
 
 ---
 
@@ -78,7 +79,7 @@ Bagian ini menggantikan "Aturan Proxy Audio" pada v1.1. Endpoint `proxy-audio?ur
 - **Akses Pengunjung**: pencarian, trending, antrean otomatis, lirik, dan pemutaran tidak memerlukan login (bagian 3.3). Fitur akun (profil, playlist, favorit) memerlukan login.
 - **Pendaftaran & Login**: Register (`name` wajib, maks. 100 karakter; `email` wajib, berformat email, maks. 255 karakter, unik; `password` wajib, minimal 6 karakter), Login (`email` dan `password` wajib; mendapatkan Bearer Token **Laravel Sanctum**). Pendaftaran tidak dapat menetapkan `role` atau `status`; akun baru selalu `user` dan `active`.
 - **Logout**: Mencabut token perangkat yang sedang dipakai (`POST /api/v1/auth/logout`).
-- **Lupa Password** (use case Pengunjung pada diagram use case): hanya untuk Pengunjung (belum login) dan tidak diwarisi Pengguna maupun Admin. Diputuskan (D13): Pengunjung meminta reset lewat **email berisi token**, memakai tabel `password_reset_tokens` yang sudah ada. Rincian yang masih terbuka (endpoint, masa berlaku token, pembatas laju, pencabutan token lama, jawaban untuk email tak terdaftar, apakah akun `blocked` boleh memakainya, dan pengiriman email sungguhan): lihat Keputusan Terbuka D13.
+- **Lupa Password** (use case Pengunjung pada diagram use case): hanya untuk Pengunjung (belum login) dan tidak diwarisi Pengguna maupun Admin. Alur (keputusan D13), memakai tabel `password_reset_tokens`: `POST /auth/forgot-password` dengan `email` mengirim email berisi tautan dan token reset. Jawabannya selalu sama (`200`) baik email terdaftar maupun tidak, dan akun `blocked` tidak dikirimi email. `POST /auth/reset-password` dengan `email`, `token`, dan `password` (minimal 6 karakter) mengganti kata sandi bila token valid; token berlaku **60 menit** dan sekali pakai (`422` bila tidak valid atau kedaluwarsa), dan akun `blocked` ditolak `403`. Setelah reset berhasil, **semua token login** akun itu dicabut. Pembatas: 5 per menit per email + IP untuk kedua endpoint. Tautan di email menuju frontend (`FRONTEND_URL`): `/reset-password?token=...&email=...`. Pengiriman email sungguhan memerlukan pengaturan email produksi; `.env.example` memakai `MAIL_MAILER=log`, sehingga email hanya ditulis ke log.
 - **Kelola Profil**:
   - `GET /api/v1/profile`: detail profil beserta `avatar_url` (`null` bila belum ada foto).
   - `PATCH /api/v1/profile`: memperbarui nama dan/atau foto profil. Foto: `jpg`/`jpeg`/`png`/`webp`, maks. 2048 KB; foto lama dihapus otomatis saat foto baru tersimpan. Unggah foto dikirim sebagai `multipart/form-data` dengan metode `POST` dan field tambahan `_method=PATCH`; mengubah nama saja boleh dengan `PATCH` JSON biasa.
@@ -119,7 +120,7 @@ Bagian ini menggantikan "Aturan Proxy Audio" pada v1.1. Endpoint `proxy-audio?ur
   - Untuk Pengguna, pemutaran dicatat dengan `user_id`. Untuk Pengunjung, `user_id` dikosongkan dan pemutaran dicatat dengan `ip_address` (hash IP; keputusan D9).
   - Respons `201` (`counted: true`) bila dicatat; `200` dengan `counted: false` dan `reason` `too_short` atau `duplicate` bila tidak dicatat. Pemutaran ulang lagu yang sama oleh pengguna yang sama (untuk Pengunjung: IP yang sama) dalam jendela waktu tertentu dianggap `duplicate` (lama jendela: lihat Keputusan Terbuka D3). Pembatas: 30 permintaan per menit per Pengguna atau per IP (Pengunjung).
   - Data dipakai untuk statistik admin, bukan untuk rekomendasi. Data putaran Pengguna juga dipakai untuk Riwayat Lagu Diputar (keputusan D14).
-- **Riwayat Lagu Diputar** (use case Pengguna pada diagram use case): Pengguna melihat riwayat lagu yang diputarnya. Mengikuti aturan bagian 3.4: fitur untuk pengguna terdaftar, dan Pengunjung yang mencoba mengaksesnya mendapat `401`. Saat ini satu-satunya tabel yang mencatat pemutaran adalah `song_plays` (bagian 5.F), yang hanya berisi putaran yang tercatat (30 detik atau lebih, bukan `duplicate`) dan memiliki `user_id` kosong untuk putaran Pengunjung. Diputuskan (D14): riwayat memakai `song_plays` yang ada, satu baris per putaran yang tercatat, sehingga lagu yang didengar kurang dari 30 detik atau berstatus `duplicate` tidak muncul; ini memerlukan indeks (`user_id`, `played_at`) (5.F). Yang masih terbuka: endpoint, bentuk respons, ukuran halaman, dan lama penyimpanan: lihat Keputusan Terbuka D14.
+- **Riwayat Lagu Diputar** (use case Pengguna pada diagram use case): Pengguna melihat riwayat lagu yang diputarnya. Mengikuti aturan bagian 3.4: fitur untuk pengguna terdaftar, dan Pengunjung yang mencoba mengaksesnya mendapat `401`. Saat ini satu-satunya tabel yang mencatat pemutaran adalah `song_plays` (bagian 5.F), yang hanya berisi putaran yang tercatat (30 detik atau lebih, bukan `duplicate`) dan memiliki `user_id` kosong untuk putaran Pengunjung. Keputusan D14: riwayat memakai `song_plays` yang ada, satu baris per putaran yang tercatat, sehingga lagu yang didengar kurang dari 30 detik atau berstatus `duplicate` tidak muncul. Endpoint `GET /api/v1/history` (Pengguna login; tanpa token `401`), terbaru di atas, 20 per halaman dengan `meta`; tiap butir berbentuk **Lagu** ditambah `played_at`. Riwayat disimpan tanpa batas waktu. Indeks (`user_id`, `played_at`) lihat 5.F.
 
 ### 4. Playlist & Favorit Pengguna
 Fitur ini hanya untuk pengguna terdaftar. Pengunjung yang mencoba mengaksesnya mendapat `401`, dan antarmuka mengarahkannya ke login atau daftar.
@@ -152,13 +153,14 @@ Fitur ini hanya untuk pengguna terdaftar. Pengunjung yang mencoba mengaksesnya m
    | Global | 60 per menit per pengguna (login) atau per IP (Pengunjung) | Semua endpoint (kecuali `music/audio`) |
    | Login | 5 per menit per email + IP | `POST /auth/login` |
    | Daftar | 10 per menit per IP | `POST /auth/register` |
+   | Lupa password | 5 per menit per email + IP | `POST /auth/forgot-password`, `POST /auth/reset-password` |
    | yt-dlp | 20 per menit per pengguna (login) atau per IP (Pengunjung) | `music/search`, `music/stream`, `music/{id}/recommendations` |
    | Pemutaran | 30 per menit per pengguna (login) atau per IP (Pengunjung) | `POST /music/{song}/play` |
    | Audio | 300 per menit per IP | `GET /music/audio/{song}` |
 
    Pengguna di satu jaringan yang sama (kampus, kantor) berbagi jatah per IP.
 
-6. **Keamanan Proses Eksternal**: yt-dlp dijalankan dengan *array argument* (tanpa shell), timeout 30 detik, dan jumlah proses yt-dlp bersamaan dibatasi (bila semua slot terpakai, permintaan gagal terkontrol).
+6. **Keamanan Proses Eksternal**: yt-dlp dijalankan dengan *array argument* (tanpa shell), timeout 30 detik, dan jumlah proses yt-dlp bersamaan dibatasi (bila semua slot terpakai, permintaan gagal terkontrol). Slot dipakai bersama oleh Pengunjung dan Pengguna tanpa jatah khusus (keputusan D11).
 7. **URL Audio Bertanda Tangan**: aturan lengkap di bagian 2.B.
 
 ---
@@ -199,7 +201,7 @@ Fitur ini hanya untuk pengguna terdaftar. Pengunjung yang mencoba mengaksesnya m
 ### F. Tabel `song_plays`
 - `id` (PK), `user_id` (FK → users.id, Nullable, Set Null), `ip_address` (Varchar(64), Nullable), `song_id` (FK, Cascade), `played_at`
 - Indeks: (`song_id`, `played_at`). Cooldown Pengunjung memakai Cache (keputusan K3), sehingga indeks (`ip_address`, `song_id`, `played_at`) tidak diperlukan.
-- Indeks yang direncanakan (keputusan D14): (`user_id`, `played_at`) untuk riwayat Pengguna.
+- Indeks (keputusan D14): (`user_id`, `played_at`) untuk riwayat Pengguna.
 - *Catatan*: `user_id` kosong untuk pemutaran Pengunjung, dan juga menjadi kosong bila akun dihapus (Set Null) agar statistik tidak hilang. `ip_address` hanya diisi untuk Pengunjung; diisi dengan **hash** IP, bukan IP mentah (keputusan D9). `Varchar(64)` memuat hash heksadesimal 64 karakter. Hash memakai HMAC-SHA256 dengan kunci aplikasi (`APP_KEY`), dan `ip_address` dikosongkan setelah 1 hari lewat jadwal per jam (keputusan D9).
 
 ### Perubahan dari v1.0
@@ -221,6 +223,8 @@ Fitur ini hanya untuk pengguna terdaftar. Pengunjung yang mencoba mengaksesnya m
 | :--- | :--- | :--- | :--- |
 | `POST` | `/api/v1/auth/register` | Pendaftaran akun baru | Pengunjung |
 | `POST` | `/api/v1/auth/login` | Login & mendapatkan token | Pengunjung |
+| `POST` | `/api/v1/auth/forgot-password` | Meminta tautan reset kata sandi lewat email | Pengunjung |
+| `POST` | `/api/v1/auth/reset-password` | Mengatur ulang kata sandi dengan token | Pengunjung |
 | `POST` | `/api/v1/auth/logout` | Mencabut token perangkat ini | Pengguna |
 | `GET` | `/api/v1/profile` | Mengambil data profil | Pengguna |
 | `PATCH` | `/api/v1/profile` | Memperbarui nama / avatar | Pengguna |
@@ -235,6 +239,7 @@ Fitur ini hanya untuk pengguna terdaftar. Pengunjung yang mencoba mengaksesnya m
 | `GET` | `/api/v1/favorites` | Daftar lagu favorit | Pengguna |
 | `POST` | `/api/v1/favorites/{song_id}` | Menambah favorit (idempoten) | Pengguna |
 | `DELETE` | `/api/v1/favorites/{song_id}` | Menghapus favorit (idempoten) | Pengguna |
+| `GET` | `/api/v1/history` | Riwayat lagu diputar (20 per halaman, terbaru dulu) | Pengguna |
 | `GET` | `/api/v1/playlists` | Daftar playlist milik user beserta `cover_thumbnails` (maks. 4 URL) | Pengguna |
 | `POST` | `/api/v1/playlists` | Membuat playlist | Pengguna |
 | `GET` | `/api/v1/playlists/{id}` | Detail playlist beserta lagu terurut | Owner User Only |
@@ -249,8 +254,6 @@ Fitur ini hanya untuk pengguna terdaftar. Pengunjung yang mencoba mengaksesnya m
 | `PATCH` | `/api/v1/admin/users/{id}/role` | Mengubah role | Admin Only |
 | `DELETE` | `/api/v1/admin/users/{id}` | Menghapus akun permanen | Admin Only |
 | `GET` | `/api/v1/admin/stats` | Statistik sistem (user, playlist, top plays) | Admin Only |
-
-Use case Lupa password dan Lihat riwayat lagu diputar (diagram use case) belum memiliki baris pada tabel ini karena endpoint-nya belum ditetapkan: lihat Keputusan Terbuka D13 dan D14.
 
 Label peran (keputusan D15): "Pengunjung" menggantikan "Public" dan "Pengguna" menggantikan "Authenticated User". "Owner User Only" dan "Admin Only" tidak disebut pada keputusan dan belum diganti.
 
@@ -299,14 +302,14 @@ Label peran (keputusan D15): "Pengunjung" menggantikan "Public" dan "Pengguna" m
 - yt-dlp diperbarui otomatis oleh jadwal `ytdlp:update` setiap Minggu 03:30 dan versi yang terpasang dicatat di log. Jadwal (`trending:refresh` Senin 03:00, `ytdlp:update` Minggu 03:30) mengikuti zona waktu aplikasi, yaitu UTC.
 
 ### 5. Kriteria Penerimaan Pengujian
-Status mengacu pada 33 tes otomatis backend (`php artisan test`) per 24 Oktober 2026. Baris bertanda v1.3 dan K1 mengacu pada 54 tes setelah tahap backend B1 sampai B5 (15 Nov 2026).
+Status mengacu pada 33 tes otomatis backend (`php artisan test`) per 24 Oktober 2026. Baris bertanda v1.3, K1, D13, dan D14 mengacu pada 72 tes setelah tahap backend B1 sampai B8 (16 Nov 2026). Frontend belum punya kerangka tes otomatis; tampilan diperiksa dengan uji asap (Playwright) terhadap API tiruan.
 
 | Kriteria | Status |
 | :--- | :--- |
 | **Role**: user `'user'` mendapat `403` saat mengakses `/api/v1/admin/*` | Sebagian teruji: `GET /admin/users` dan `GET /admin/stats`; `block` diuji hanya dari sisi admin; `unblock`, `role`, dan `DELETE` belum |
 | **Isolasi Data**: User A tidak dapat mengubah atau melihat playlist milik User B | Teruji: enam operasi (lihat, ubah, tambah lagu, urut, hapus lagu, hapus playlist) semuanya `403`, data tidak berubah. Pelaku yang diuji: pengguna biasa; Admin belum |
 | **Status Blokir**: akun `blocked` ditolak pada fitur akun dan token lamanya tidak berlaku; musik tetap dapat diputar sebagai Pengunjung | Sebagian teruji: permintaan dengan token akun terblokir mendapat `403` dan token terhapus (diuji pada `GET /profile`); login oleh akun terblokir dan endpoint lain belum |
-| **URL Audio**: tanda tangan salah/hilang, kedaluwarsa, atau lagu diubah ditolak `403` | Teruji ulang setelah v1.3: 3 skenario (`AudioUrlTest`) ditambah `play_url` tanpa parameter pengguna dan URL tanpa pemilik (`PlayUrlNotBoundToUserTest`); dua skenario pemilik diblokir/dihapus dihapus karena tidak berlaku. Jalur sukses (`200`/`206` dengan `Range`) belum |
+| **URL Audio**: tanda tangan salah/hilang, kedaluwarsa, atau lagu diubah ditolak `403` | Teruji ulang setelah v1.3: 3 skenario (`AudioUrlTest`: tanda tangan salah/hilang, kedaluwarsa, lagu diubah) ditambah `play_url` tanpa parameter pengguna dan URL tanpa pemilik (`PlayUrlNotBoundToUserTest`); dua skenario pemilik diblokir/dihapus dihapus karena tidak berlaku. Jalur sukses (`200`/`206` dengan `Range`) belum |
 | **Registrasi**: tidak dapat menetapkan `role` atau `status` | Teruji |
 | **Reorder playlist**: urutan valid diterapkan; daftar kurang, berisi id asing, atau ganda ditolak `422` tanpa mengubah urutan; hapus lagu merapatkan posisi | Teruji |
 | **Favorit**: tambah dan hapus idempoten; privat per pengguna | Teruji |
@@ -321,12 +324,13 @@ Status mengacu pada 33 tes otomatis backend (`php artisan test`) per 24 Oktober 
 | **Pencatatan Pengunjung (v1.3)**: `play` tanpa token mencatat `user_id` kosong dan `ip_address` terisi; pemutaran ulang lagu yang sama dari IP yang sama dalam 60 detik dijawab `duplicate` | Teruji (`VisitorPlayTest`); `ip_address` berisi hash, bukan IP mentah, dan dikosongkan setelah 1 hari |
 | **Pembatas per IP (v1.3)**: Pengunjung mendapat `429` saat melewati batas global, yt-dlp, pemutaran, dan audio | Belum teruji |
 | **Identitas opsional (v1.3, K1)**: endpoint musik terbuka dengan token valid dikenali sebagai Pengguna (`play` mencatat `user_id`); dengan token tidak valid atau kedaluwarsa dijawab seperti Pengunjung, bukan `401` | Teruji (`OptionalIdentityTest`, `OpenMusicRoutesTest`) |
-| **Lupa password dan Riwayat lagu diputar (diagram)**: kriteria belum dapat dirumuskan sebelum D13 dan D14 diputuskan | Belum dirumuskan |
+| **Lupa password (D13)**: jawaban sama untuk email terdaftar dan tidak; akun `blocked` tidak dikirimi email dan ditolak `403` saat reset; token berlaku 60 menit dan sekali pakai; reset mencabut semua token login; pembatas 5 per menit | Teruji (`PasswordResetTest`); pengiriman email sungguhan belum diuji |
+| **Riwayat lagu diputar (D14)**: hanya milik pengguna sendiri, terbaru dulu, 20 per halaman, `401` tanpa token, `403` akun blocked | Teruji (`HistoryTest`) |
 
 ---
 
 ## 8. Keputusan Terbuka
-Hal berikut belum diputuskan dan sengaja dibiarkan terbuka; dokumen ini tidak memilihkan salah satunya. D8 (aktor Pengunjung) sudah diputuskan pada v1.3. D9, D12, D15, D16, K1, dan K3 diputuskan pada rev. 15 Nov 2026 dan tidak lagi terbuka (keputusannya tercatat di bagian terkait dan di riwayat revisi). D13 dan D14 sudah diputuskan pokoknya, tetapi rinciannya masih terbuka.
+Hal berikut belum diputuskan dan sengaja dibiarkan terbuka; dokumen ini tidak memilihkan salah satunya. D8 (aktor Pengunjung) sudah diputuskan pada v1.3. D9, D10, D12, D15, D16, K1, K3, K6, dan K7 diputuskan pada rev. 15 Nov 2026 dan tidak lagi terbuka (keputusannya tercatat di bagian terkait dan di riwayat revisi); D10 kemudian digantikan K8. D11, D13, dan D14 diputuskan pada 16 Nov 2026. K8 sampai K11 diputuskan pada 17 Nov 2026 (bagian 10).
 
 | No | Hal | Keadaan sekarang |
 | :--- | :--- | :--- |
@@ -337,15 +341,13 @@ Hal berikut belum diputuskan dan sengaja dibiarkan terbuka; dokumen ini tidak me
 | D5 | Penanda `is_favorite` pada hasil pencarian/stream | Belum ada; ikon hati harus memuat daftar favorit sendiri |
 | D6 | Format respons `429` | Belum didokumentasikan |
 | D7 | Kode status login dengan kata sandi salah | Tes menerima `401` maupun `422`; belum ditetapkan salah satu |
-| D10 | Sumber data tab Terkait | Tab Antrean dan Terkait sama-sama hanya bisa memakai `recommendations`. Perlu ditetapkan apa bedanya, atau tab Terkait ditiadakan |
-| D11 | Slot yt-dlp bersama | Jumlah proses yt-dlp bersamaan dibatasi dan dipakai bersama oleh Pengunjung dan pengguna login. Pilihan: menyisakan slot khusus bagi pengguna login, atau tetap bersama |
-| D13 | Rincian Lupa password (pokok diputuskan: email berisi token) | Belum ditetapkan: endpoint, masa berlaku token, pembatas laju, pencabutan token lama setelah reset, jawaban untuk email tak terdaftar, apakah akun `blocked` boleh memakainya, dan pengiriman email sungguhan (`.env.example`: `MAIL_MAILER=log`). Tabel `password_reset_tokens` sudah ada (migrasi `0001_01_01_000000_create_users_table.php`); `routes/api.php` belum memuat rutenya |
-| D14 | Rincian Riwayat lagu diputar (pokok diputuskan: `song_plays`, satu baris per putaran tercatat) | Belum ditetapkan: endpoint, bentuk respons, ukuran halaman, lama penyimpanan, dan halaman antarmuka. Konsekuensi keputusan: lagu yang didengar kurang dari 30 detik atau `duplicate` tidak muncul di riwayat; diperlukan indeks (`user_id`, `played_at`) |
+| D17 | "Hasil teratas" pada Hasil Cari dan baris geser trending dengan "Tampilkan semua" pada Beranda | Rancangan v1.3 menyebut keduanya, tetapi **belum dibangun**: Hasil Cari berupa daftar "Hasil untuk ..." tanpa blok teratas, dan Beranda berupa daftar vertikal "Trending". Pilihan: dibangun (tahap F10), atau dihapus dari SRS |
+| D18 | Thumbnail kecil (daftar dan bilah bawah) | Sampul besar di `/putar` dipotong 16:9 agar bilah hitam `hqdefault` tidak tampak; thumbnail kecil belum dipotong dan masih memperlihatkan bilah itu. Pilihan: ikut dipotong 16:9, atau dibiarkan |
 
 ---
 
 ## 9. Catatan Verifikasi
-Status per 24 Oktober 2026, dicocokkan dengan kode backend.
+Butir di bawah dicocokkan dengan kode backend per 24 Oktober 2026.
 
 **Sudah dicocokkan dan dikoreksi di dokumen ini**
 1. Daftar kata penyaring pencarian: lengkap di bagian 3.3 (dari `SongFilter.php`).
@@ -359,37 +361,52 @@ Status per 24 Oktober 2026, dicocokkan dengan kode backend.
 2. Cache hasil pencarian untuk query populer: belum dicek di kode dan tidak tercantum di `02_API.md`.
 3. Urutan pemanggilan LRCLIB (`/api/get` lalu `/api/search`): disebut v1.1; perlu dicek ulang di `Lyrics.php` bila ingin dipastikan.
 
-**Revisi v1.3 (30 Okt 2026) belum dicocokkan dengan kode.** Perubahan mode Pengunjung masih rancangan. Hal yang perlu dicek di backend sebelum diimplementasikan: (1) pengelompokan route endpoint musik baca yang kini berada di grup `auth:sanctum`; (2) perlakuan token akun terblokir atau kedaluwarsa pada endpoint terbuka (diputuskan K1: token valid dikenali sebagai Pengguna; token tidak valid, kedaluwarsa, atau milik akun terblokir diperlakukan sebagai Pengunjung. Guard bawaan di `config/auth.php` adalah `web`, sehingga perlu dicek apakah `$request->user()` terisi pada rute tanpa `auth:sanctum`; uji dengan `withToken()`); (3) pembatas laju yang kini memakai `user_id` dan perlu cadangan `ip()`; (4) penerbitan dan validasi `play_url` yang kini terikat ke `user_id`; (5) migrasi `ip_address` dan logika cooldown `play` untuk Pengunjung. Revisi 15 Nov 2026 (diagram use case) juga belum dicocokkan dengan kode: ia tidak mengubah butir (1) sampai (5), tetapi menambah use case Lupa password dan Lihat riwayat lagu diputar (D13, D14); keputusan D12, D15, D16, dan K1 tercatat di riwayat revisi.
+**Revisi v1.3 dan v1.3 rev. 15 Nov 2026 sudah dicocokkan dengan kode.** Backend mengikutinya pada tahap B1 sampai B8 (72 tes lulus per 16 Nov 2026): rute musik terbuka dengan identitas opsional (K1), pembatas laju per pengguna atau per IP, `play_url` tanpa pemilik, kolom `song_plays.ip_address` berisi HMAC (D9) dengan cooldown lewat Cache (K3), Lupa password (D13), dan Riwayat (D14). Frontend mengikutinya pada tahap F1 sampai F9 (bagian 10).
 
 
 ---
 
 ## 10. Antarmuka Web (React.js)
 
-*Bagian baru pada v1.3.*
+*Bagian baru pada v1.3; ditulis ulang pada v1.4 menurut implementasi dan keputusan 17 Nov 2026.*
 
-**Aturan umum.** Tema gelap. Pengunjung dan Pengguna memakai cangkang yang sama (bilah atas, panel kiri, area utama, bilah pemutar bawah). Di ponsel (lebar di bawah sekitar 768 px) navigasi berpindah ke menu bawah.
+**Aturan umum.**
+- **Tema** hitam pekat dengan aksen merah (K11).
+- Pengunjung dan Pengguna memakai cangkang yang sama: bilah atas, panel kiri, area utama, dan bilah pemutar bawah.
+- Di ponsel (lebar di bawah 768 px) navigasi berpindah ke **menu bawah**: Pengunjung melihat Beranda dan Masuk; Pengguna melihat menu akunnya.
+- Bila sesi berakhir saat lagu sedang diputar (misalnya token kedaluwarsa dan endpoint akun menjawab `401`), pemutaran **tetap berjalan** dan pemakai diperlakukan sebagai Pengunjung (K7).
 
-### A. Beranda
-- **Bilah atas**: tombol beranda, kolom cari di tengah (pencarian dikirim hanya saat Enter), serta **Daftar** dan **Masuk** di kanan untuk Pengunjung; untuk Pengguna, menu pengguna.
-- **Panel kiri "Koleksi Kamu"**: untuk Pengunjung berisi ajakan "Buat playlist pertamamu" yang mengarah ke login atau daftar; untuk Pengguna berisi daftar playlist.
-- **Isi beranda**: baris geser "Lagu trending" dengan "Tampilkan semua" (sampai 25 lagu dari `GET /music/trending`).
+**Halaman.**
+
+| Alamat | Halaman | Akses |
+| :--- | :--- | :--- |
+| `/` | Beranda | Pengunjung |
+| `/cari` | Hasil Cari | Pengunjung |
+| `/putar` | Halaman Pemutar | Pengunjung |
+| `/login`, `/register` | Masuk, Daftar | Pengunjung (pengguna yang sudah login dialihkan) |
+| `/lupa-password`, `/reset-password` | Lupa password, atur ulang kata sandi | Pengunjung (tidak dialihkan bila sudah login, D16) |
+| `/favorit`, `/riwayat`, `/playlist`, `/playlist/{id}`, `/profil` | Fitur akun | Pengguna |
+| `/admin/pengguna`, `/admin/statistik` | Dashboard Admin (`/admin` beralih ke `/admin/pengguna`) | Admin |
+
+### A. Cangkang dan Beranda
+- **Bilah atas**: logo, kolom cari di tengah (pencarian dikirim hanya saat Enter), serta **Daftar** dan **Masuk** di kanan untuk Pengunjung; untuk Pengguna, foto profil dan tombol **Keluar**.
+- **Panel kiri**: menu navigasi (Beranda, Cari; untuk Pengguna ditambah Favorit, Riwayat, Playlist, Profil, dan untuk Admin menu Admin), tombol **Playlist baru**, lalu daftar playlist Pengguna. Untuk Pengunjung, daftar playlist diganti ajakan masuk, dan "Playlist baru" mengarah ke login.
+- **Isi beranda**: daftar vertikal "Trending" (sampai 25 lagu dari `GET /music/trending`). Baris geser dengan "Tampilkan semua" belum dibangun (D17).
 
 ### B. Hasil Cari
-Blok "Hasil teratas" (butir pertama dari `GET /music/search`) dan daftar "Lagu". Tidak ada chip penyaring karena pencarian hanya mengembalikan lagu.
+Daftar lagu "Hasil untuk ..." dari `GET /music/search`. Tidak ada chip penyaring karena pencarian hanya mengembalikan lagu. Blok "Hasil teratas" belum dibangun (D17).
 
 ### C. Halaman Pemutar (`/putar`)
-- **Sidebar kiri**: menu dan daftar playlist (untuk Pengguna).
-- **Area tengah**: sampul lagu besar. Aplikasi memutar audio saja, tanpa video.
-- **Panel kanan**: tab **Antrean**, **Lirik**, dan **Terkait** (lihat D10), serta sakelar **Autoplay**.
-- **Bilah pemutar bawah**: acak, sebelumnya, putar/jeda, berikutnya, ulang, garis progres, waktu, suka, dan volume.
-- Pengunjung yang menekan tombol suka atau "tambah ke playlist" diarahkan ke login atau daftar.
+- **Pembukaan halaman**: saat Pengunjung atau Pengguna memutar sebuah lagu, tampilan berpindah ke Halaman Pemutar untuk lagu itu (K6).
+- **Area kiri**: sampul lagu besar berukuran 16:9 (sampul saja; aplikasi memutar audio tanpa video), judul, artis, serta tombol **Favorit** dan **Tambah ke playlist** (K9). Pengunjung yang menekannya diarahkan ke login.
+- **Panel kanan**: tab **Antrean**, **Lirik**, dan **Terkait** (K8), serta sakelar **Autoplay**. Bawaan Autoplay mati dan pilihannya diingat di peramban (K10). Bila Autoplay menyala dan antrean hampir habis, antrean ditambah dari rekomendasi lagu yang sedang diputar; ini tidak dilakukan saat Ulangi = semua lagu. Memilih lagu pada tab Terkait mengganti antrean dengan daftar terkait, dimulai dari lagu itu.
+- **Bilah pemutar bawah**: sampul kecil dan judul (menuju `/putar`), acak, sebelumnya, putar/jeda, berikutnya, ulang, garis progres, waktu, dan slider volume (tidak disimpan). Tidak ada tombol suka di bilah ini (K9).
 
 ### D. Dashboard Admin
-Tata letak terpisah dari antarmuka Pengguna, dengan menu navigasi sendiri: **Kelola User** (daftar, blokir/buka blokir, ubah role, hapus) dan **Statistik** (`total_users`, `total_playlists`, `top_songs`), serta jalan kembali ke tampilan pemutar karena Admin boleh memakai fitur Pengguna. Halaman dijaga berdasarkan `role`; Pengguna biasa yang membukanya ditolak (API menjawab `403`).
+Tata letak terpisah dari antarmuka Pengguna, dengan menu navigasi sendiri: **Pengguna** (`/admin/pengguna`: daftar, blokir/buka blokir, ubah role, hapus) dan **Statistik** (`/admin/statistik`: `total_users`, `total_playlists`, `top_songs`), serta tautan **Kembali ke pemutar** karena Admin boleh memakai fitur Pengguna. Halaman dijaga berdasarkan `role`; Pengguna biasa yang membukanya ditolak (API menjawab `403`).
 
 ### E. Di Luar Lingkup
-Bagian artis populer; chip Artis, Album, Playlist, dan Podcast; tab Komentar; jumlah penayangan dan suka; tombol tidak suka; chip Familiar/Discover; dan gambar video.
+Bagian artis populer; chip Artis, Album, Playlist, dan Podcast; chip Familiar/Discover dan chip penyaring apa pun; tab Komentar; jumlah penayangan dan suka; tombol tidak suka; gambar video; tombol hamburger, cast, Explore, dan Upgrade.
 
 ### F. Belum Ditetapkan
-Halaman untuk Lupa password dan Riwayat lagu diputar, serta tautan menuju keduanya, belum ditetapkan karena diagram use case tidak mengatur tampilan (D13, D14).
+Lihat D17 dan D18 pada bagian 8.
