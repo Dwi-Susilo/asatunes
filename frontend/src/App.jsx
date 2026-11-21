@@ -1,4 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import AdminLayout from './components/AdminLayout.jsx'
 import AdminRoute from './components/AdminRoute.jsx'
 import AppLayout from './components/AppLayout.jsx'
 import AudioPlayer from './components/AudioPlayer.jsx'
@@ -7,7 +8,8 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage.jsx'
 import GuestRoute from './components/GuestRoute.jsx'
 import PlayerBar from './components/PlayerBar.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
-import AdminPage from './pages/AdminPage.jsx'
+import AdminStatsPage from './pages/AdminStatsPage.jsx'
+import AdminUsersPage from './pages/AdminUsersPage.jsx'
 import FavoritesPage from './pages/FavoritesPage.jsx'
 import HistoryPage from './pages/HistoryPage.jsx'
 import HomePage from './pages/HomePage.jsx'
@@ -33,6 +35,17 @@ export default function App() {
         <Route path="/lupa-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
 
+        {/* Dashboard Admin: tata letak terpisah dari antarmuka Pengguna (SRS 7.D). */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<AdminRoute />}>
+            <Route element={<AdminLayout />}>
+              <Route path="/admin" element={<Navigate to="/admin/pengguna" replace />} />
+              <Route path="/admin/pengguna" element={<AdminUsersPage />} />
+              <Route path="/admin/statistik" element={<AdminStatsPage />} />
+            </Route>
+          </Route>
+        </Route>
+
         <Route element={<AppLayout />}>
           {/* Terbuka untuk Pengunjung (SRS 3.1) */}
           <Route path="/" element={<HomePage />} />
@@ -46,10 +59,6 @@ export default function App() {
             <Route path="/playlist" element={<PlaylistsPage />} />
             <Route path="/playlist/:id" element={<PlaylistDetailPage />} />
             <Route path="/profil" element={<ProfilePage />} />
-
-            <Route element={<AdminRoute />}>
-              <Route path="/admin" element={<AdminPage />} />
-            </Route>
           </Route>
         </Route>
 
