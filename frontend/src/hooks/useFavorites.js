@@ -29,8 +29,8 @@ export function useFavorites() {
   })
 
   return {
-    favorites: query.data ?? [], // daftar Lagu (punya id), terbaru di atas
-    ids, // himpunan song_id
+    favorites: query.data ?? [],
+    ids,
     isPending: query.isPending,
     error: query.error,
     isFetching: query.isFetching,
