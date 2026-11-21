@@ -125,8 +125,10 @@ export default function NowPlayingPage() {
   }
 
   return (
-    <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,28rem)]">
-      <section className="flex flex-col items-center gap-4">
+    // grid-cols-1 + min-w-0 pada kedua section: tanpa ini judul panjang melebarkan kolom
+    // melewati layar ponsel.
+    <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,28rem)]">
+      <section className="flex min-w-0 flex-col items-center gap-4">
         <Cover song={current} className="aspect-square w-full max-w-md" />
         <div className="w-full max-w-md space-y-1 text-center">
           <h1 className="truncate text-2xl font-bold">{current.title}</h1>
@@ -136,7 +138,7 @@ export default function NowPlayingPage() {
         </div>
       </section>
 
-      <section>
+      <section className="min-w-0">
         <div className="mb-4 flex items-center justify-between gap-3 border-b border-zinc-800">
           <div role="tablist" aria-label="Panel pemutar" className="flex gap-1">
             {TABS.map(({ id, label }) => (
