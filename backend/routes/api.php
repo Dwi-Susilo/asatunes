@@ -35,6 +35,10 @@ Route::prefix('v1')->group(function () {
             ->where('youtubeId', '[A-Za-z0-9_-]{11}')
             ->middleware('throttle:ytdlp');
 
+        Route::get('{youtubeId}/related', [MusicController::class, 'related'])
+            ->where('youtubeId', '[A-Za-z0-9_-]{11}')
+            ->middleware('throttle:ytdlp');
+
         Route::post('{song}/play', [SongPlayController::class, 'store'])
             ->whereNumber('song')
             ->middleware('throttle:play');

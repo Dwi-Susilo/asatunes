@@ -8,6 +8,7 @@ use App\Http\Requests\SearchMusicRequest;
 use App\Http\Requests\StreamMusicRequest;
 use App\Models\Song;
 use App\Services\Lyrics;
+use App\Services\RelatedSongs;
 use App\Services\SmartQueue;
 use App\Services\Trending;
 use App\Services\YtDlp;
@@ -348,5 +349,22 @@ class MusicController extends Controller
         $limit = max(1, min(20, (int) $request->query('limit', 10)));
 
         return response()->json(['status' => 'success', 'data' => $queue->for($seed, $limit)]);
+    }
+
+    /** Tab "Terkait": lagu artis lain dari internet, diacak, minimal 15 bila sumber cukup. */
+    public function related(Request $request, string $youtubeId, RelatedSongs $related): JsonResponse
+    {
+        $seed = Song::where('youtube_id', $youtubeId)->first();
+
+        if (! $seed) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Lagu belum dikenal. Putar lagu ini terlebih dahulu.',
+            ], 404);
+        }
+
+        $limit = max(1, min(30, (int) $request->query('limit', 20)));
+
+        return response()->json(['status' => 'success', 'data' => $related->for($seed, $limit)]);
     }
 }
