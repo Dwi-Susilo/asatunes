@@ -4,6 +4,7 @@ import { usePlaylists } from '../hooks/usePlaylists.js'
 import { useAuthStore } from '../store/authStore.js'
 import { usePlayerStore } from '../store/playerStore.js'
 import Avatar from './Avatar.jsx'
+import BottomNav from './BottomNav.jsx'
 import {
   HeartFilledIcon,
   HistoryIcon,
@@ -20,6 +21,9 @@ const MIN_CHARS = 2 // sama dengan batas server untuk pencarian
 
 // Terbuka untuk Pengunjung (SRS 3.1)
 const PUBLIC_NAV_ITEMS = [{ to: '/', label: 'Beranda', Icon: HomeIcon }]
+
+// Pengunjung di ponsel: jalan ke halaman masuk lewat menu bawah
+const GUEST_LOGIN_ITEM = { to: '/login', label: 'Masuk', Icon: UserIcon }
 
 // Fitur akun: hanya tampil bila sudah login
 const ACCOUNT_NAV_ITEMS = [
@@ -138,7 +142,7 @@ export default function AppLayout() {
       <Link
         to="/register"
         state={{ from: location }}
-        className="rounded-md border border-zinc-700 px-3 py-1.5 text-sm hover:bg-zinc-800"
+        className="hidden rounded-md border border-zinc-700 px-3 py-1.5 text-sm hover:bg-zinc-800 sm:block"
       >
         Daftar
       </Link>
@@ -202,15 +206,6 @@ export default function AppLayout() {
         {accountActions}
       </header>
 
-      {/* Layar sempit: menu mendatar (diganti navigasi bawah pada tahap F7) */}
-      <nav className="flex gap-1 overflow-x-auto border-b border-zinc-800 px-2 py-1 md:hidden">
-        {navItems.map(({ to, label }) => (
-          <NavLink key={to} to={to} end className={linkClass}>
-            {label}
-          </NavLink>
-        ))}
-      </nav>
-
       <div className="md:flex">
         {/* Layar lebar: sidebar */}
         <aside className="hidden w-60 shrink-0 flex-col gap-4 overflow-y-auto border-r border-zinc-800 p-3 md:sticky md:top-14 md:flex md:h-[calc(100vh-3.5rem)]">
@@ -256,10 +251,16 @@ export default function AppLayout() {
           )}
         </aside>
 
-        <main className={`min-w-0 flex-1 p-4 md:p-8 ${hasQueue ? 'pb-32' : 'pb-8'}`}>
+        {/* Ruang bawah di ponsel: menu bawah (3.5rem) dan, bila ada lagu, bilah pemutar di atasnya. */}
+        <main
+          className={`min-w-0 flex-1 p-4 md:p-8 ${hasQueue ? 'pb-52 md:pb-32' : 'pb-20 md:pb-8'}`}
+        >
           <Outlet />
         </main>
       </div>
+
+      {/* Ponsel: Pengunjung hanya punya Beranda dan Masuk; Pengguna dan Admin memakai menu penuh. */}
+      <BottomNav items={isGuest ? [...PUBLIC_NAV_ITEMS, GUEST_LOGIN_ITEM] : navItems} />
 
     </div>
   )
