@@ -4,7 +4,7 @@ Versi dokumen: 1.3 (rev. 21 November 2026). Mengacu pada `01_SRS.md` v1.4.
 Mencerminkan backend Laravel sampai tahap B8 (72 tes otomatis lulus), termasuk mode Pengunjung.
 Perubahan dari 1.0: `proxy-audio` diganti URL audio bertanda tangan (`play_url`).
 Perubahan dari 1.1: endpoint baca musik terbuka untuk Pengunjung; `play_url` tidak lagi terikat ke pengguna; pembatas laju per IP untuk Pengunjung; pemutaran Pengunjung dicatat dengan `ip_address` (hash).
-Perubahan dari 1.2: istilah Tamu menjadi Pengunjung dan User menjadi Pengguna (objek **User** dan nilai `role` tidak berubah); ditambahkan `POST /auth/forgot-password`, `POST /auth/reset-password` (D13) dan `GET /history` (D14); akun `blocked` tetap tidak dapat login (D12); server tidak menolak Registrasi, Login, dan Lupa password bagi pemegang token (D16); endpoint musik terbuka mengenali token valid sebagai Pengguna (K1).
+Perubahan dari 1.2 (rev. 21 Nov 2026 menambah `GET /music/{youtube_id}/related`, bagian 6.7; backend tahap B9, 77 tes): istilah Tamu menjadi Pengunjung dan User menjadi Pengguna (objek **User** dan nilai `role` tidak berubah); ditambahkan `POST /auth/forgot-password`, `POST /auth/reset-password` (D13) dan `GET /history` (D14); akun `blocked` tetap tidak dapat login (D12); server tidak menolak Registrasi, Login, dan Lupa password bagi pemegang token (D16); endpoint musik terbuka mengenali token valid sebagai Pengguna (K1).
 
 ---
 
@@ -85,7 +85,7 @@ Daftar berhalaman memakai `?page=` dan mengembalikan:
 | Login | 5 per menit per email + IP | `POST /auth/login` |
 | Daftar | 10 per menit per IP | `POST /auth/register` |
 | Lupa password | 5 per menit per email + IP | `POST /auth/forgot-password`, `POST /auth/reset-password` |
-| yt-dlp | 20 per menit per pengguna (login) atau per IP (Pengunjung) | `music/search`, `music/stream`, `music/{id}/recommendations` |
+| yt-dlp | 20 per menit per pengguna (login) atau per IP (Pengunjung) | `music/search`, `music/stream`, `music/{id}/recommendations`, `music/{id}/related` |
 | Pemutaran | 30 per menit per pengguna (login) atau per IP (Pengunjung) | `POST /music/{song}/play` |
 | Audio | 300 per menit per IP | `GET /music/audio/{song}` (URL bertanda tangan) |
 
@@ -318,7 +318,19 @@ Mengalirkan audio dari server. Mendukung header **`Range`** (misalnya `bytes=100
 `200`: `data` berisi daftar kandidat dengan kolom `source` (`album`, `artist`, `trending`). Tanpa judul kembar, tanpa karaoke atau kompilasi, durasi 60 sampai 600 detik. Bisa **kurang dari `limit`**: Trending hanya dipakai bila hasil yang relevan kurang dari 3. Antrean bergulir: minta lagi memakai lagu yang baru diputar.
 `404`: format ID salah atau lagu belum dikenal (`Lagu belum dikenal. Putar lagu ini terlebih dahulu.`), jadi panggil `stream` dulu. Pembatas: yt-dlp. Hasil di-cache 12 jam.
 
-### 6.7 POST `/music/{song}/play`
+### 6.7 GET `/music/{youtube_id}/related`
+
+Lagu **artis lain** untuk tab Terkait. Berbeda dari 6.6, yang hanya berisi artis atau album yang sama. Sumber: pencarian YouTube (yt-dlp) yang diarahkan ke artis lain, ditambah Trending.
+
+| Parameter | Aturan |
+|---|---|
+| `youtube_id` (path) | 11 karakter `A-Za-z0-9_-` |
+| `limit` (query) | opsional, 1 sampai 30, bawaan 20 |
+
+`200`: `data` berisi daftar **Kandidat lagu** dengan kolom `source` (`related` atau `trending`). Lagu seed dan lagu artis yang sama dibuang; penyaring pencarian (6.1) berlaku; tanpa judul kembar. **Urutan diacak pada setiap permintaan.** Hasil minimal 15 bila sumber cukup; bila tidak, jumlah yang ada dikembalikan apa adanya. Kumpulan lagu di-cache 12 jam dan tidak disimpan bila yt-dlp gagal (dalam kasus itu hasil tetap dijawab dari Trending). Klien menyembunyikan lagu yang sudah ada di antrean.
+`404`: lagu belum dikenal (`Lagu belum dikenal. Putar lagu ini terlebih dahulu.`), jadi panggil `stream` dulu. Pembatas: yt-dlp.
+
+### 6.8 POST `/music/{song}/play`
 
 `{song}` = `song_id` (angka). Dapat dipanggil tanpa token. Pemutaran Pengunjung dicatat dengan `user_id` kosong dan `ip_address` berisi hash IP (HMAC-SHA256), bukan IP mentah; kolom itu dikosongkan setelah 1 hari.
 
@@ -346,7 +358,7 @@ Semua operasi hanya menyangkut favorit milik pemilik token.
 
 ### GET `/history` (login)
 
-Riwayat lagu yang diputar pengguna. Satu baris per putaran yang tercatat (30 detik atau lebih, bukan `duplicate`; lihat 6.7), terbaru di atas, 20 per halaman, dengan `meta`. Disimpan tanpa batas waktu.
+Riwayat lagu yang diputar pengguna. Satu baris per putaran yang tercatat (30 detik atau lebih, bukan `duplicate`; lihat 6.8), terbaru di atas, 20 per halaman, dengan `meta`. Disimpan tanpa batas waktu.
 
 `200`: `data`: daftar **Lagu** ditambah `played_at`. `401` tanpa token, `403` akun `blocked`.
 
