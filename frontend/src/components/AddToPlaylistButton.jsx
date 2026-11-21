@@ -7,7 +7,8 @@ import { addSongToPlaylist } from '../lib/playlists.js'
 import { useAuthStore } from '../store/authStore.js'
 import { usePlayerStore } from '../store/playerStore.js'
 
-export default function AddToPlaylistButton() {
+// `labeled`: tombol berlabel teks "Playlist" (dipakai di halaman /putar); tanpa itu hanya ikon.
+export default function AddToPlaylistButton({ labeled = false }) {
   const songId = usePlayerStore((s) => s.songId) // diisi dari GET /music/stream
   const userId = useAuthStore((s) => s.user?.id)
   const queryClient = useQueryClient()
@@ -59,13 +60,20 @@ export default function AddToPlaylistButton() {
         aria-label={label}
         aria-expanded={open}
         title={label}
-        className={`rounded-full p-2 hover:bg-zinc-800 disabled:opacity-40 ${
-          open ? 'text-accent-400' : ''
-        }`}
+        className={
+          labeled
+            ? `flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium hover:bg-zinc-800 disabled:opacity-60 ${
+                open ? 'border-accent-500 text-accent-400' : 'border-zinc-600 text-zinc-100'
+              }`
+            : `rounded-full p-2 hover:bg-zinc-800 disabled:opacity-40 ${
+                open ? 'text-accent-400' : ''
+              }`
+        }
       >
         <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden="true">
           <path d="M3 6h12v2H3zM3 10h12v2H3zM3 14h8v2H3zM17 10v4h-4v2h4v4h2v-4h4v-2h-4v-4z" />
         </svg>
+        {labeled && 'Playlist'}
       </button>
 
       {open && (

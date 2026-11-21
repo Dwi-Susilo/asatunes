@@ -1,8 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import AddToPlaylistButton from '../components/AddToPlaylistButton.jsx'
 import Cover from '../components/Cover.jsx'
 import ErrorNotice from '../components/ErrorNotice.jsx'
+import HeartButton from '../components/HeartButton.jsx'
 import LyricsPanel from '../components/LyricsPanel.jsx'
 import { fetchRecommendations } from '../lib/music.js'
 import { formatDuration } from '../lib/songs.js'
@@ -128,13 +130,21 @@ export default function NowPlayingPage() {
     // grid-cols-1 + min-w-0 pada kedua section: tanpa ini judul panjang melebarkan kolom
     // melewati layar ponsel.
     <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,28rem)]">
-      <section className="flex min-w-0 flex-col items-center gap-4">
-        <Cover song={current} className="aspect-square w-full max-w-md" />
-        <div className="w-full max-w-md space-y-1 text-center">
-          <h1 className="truncate text-2xl font-bold">{current.title}</h1>
-          <p className="truncate text-zinc-400">
+      <section className="flex min-w-0 flex-col items-center gap-3">
+        {/* 16:9: object-cover membuang bar hitam bawaan thumbnail hqdefault (4:3), jadi sampul
+            tidak memakan tinggi layar ponsel. */}
+        <Cover song={current} className="aspect-video w-full max-w-xl" />
+        <div className="w-full max-w-xl space-y-0.5 text-center">
+          <h1 className="line-clamp-2 break-words text-lg font-bold leading-snug sm:text-xl lg:text-2xl">
+            {current.title}
+          </h1>
+          <p className="truncate text-sm text-zinc-400">
             {status === 'loading' ? 'Memuat…' : current.artist}
           </p>
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <HeartButton labeled />
+          <AddToPlaylistButton labeled />
         </div>
       </section>
 
