@@ -7,7 +7,8 @@ import ErrorNotice from './ErrorNotice.jsx'
 
 const MANUAL_SCROLL_PAUSE_MS = 4000
 
-export default function LyricsPanel({ song, onClose }) {
+// Lirik lagu yang sedang diputar; ditampilkan di tab Lirik pada halaman /putar.
+export default function LyricsPanel({ song }) {
   const { lines, plain, instrumental, notFound, isPending, error, isFetching, refetch } =
     useLyrics(song)
   const time = usePlayerStore((s) => s.time)
@@ -17,18 +18,15 @@ export default function LyricsPanel({ song, onClose }) {
   const lineRefs = useRef([])
   const pausedUntil = useRef(0)
 
-  // Gulir otomatis ke baris aktif, kecuali pengguna baru saja menggulir sendiri.
+  // Gulir otomatis ke baris aktif di dalam panel (bukan halaman), kecuali pengguna baru
+  // saja menggulir sendiri.
   useEffect(() => {
-    if (active < 0 || Date.now() < pausedUntil.current) return
-    lineRefs.current[active]?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    const box = containerRef.current
+    const line = lineRefs.current[active]
+    if (!box || !line || active < 0 || Date.now() < pausedUntil.current) return
+    const top = line.offsetTop - box.clientHeight / 2 + line.clientHeight / 2
+    box.scrollTo({ top: Math.max(0, top), behavior: 'smooth' })
   }, [active])
-
-  // Tutup dengan tombol Escape.
-  useEffect(() => {
-    const onKey = (e) => e.key === 'Escape' && onClose()
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [onClose])
 
   function seekTo(t) {
     const audio = getAudioElement()
@@ -85,28 +83,13 @@ export default function LyricsPanel({ song, onClose }) {
   }
 
   return (
-    <div className="fixed inset-x-0 top-0 bottom-24 z-20 flex flex-col bg-zinc-950">
-      <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
-        <div className="min-w-0">
-          <p className="truncate font-medium">{song.title}</p>
-          <p className="truncate text-xs text-zinc-400">{song.artist}</p>
-        </div>
-        <button
-          type="button"
-          onClick={onClose}
-          className="rounded-md border border-zinc-700 px-3 py-1.5 text-sm hover:bg-zinc-800"
-        >
-          Tutup
-        </button>
-      </div>
-      <div
-        ref={containerRef}
-        onWheel={() => (pausedUntil.current = Date.now() + MANUAL_SCROLL_PAUSE_MS)}
-        onTouchMove={() => (pausedUntil.current = Date.now() + MANUAL_SCROLL_PAUSE_MS)}
-        className="mx-auto w-full max-w-2xl flex-1 overflow-y-auto px-4 py-10"
-      >
-        {body}
-      </div>
+    <div
+      ref={containerRef}
+      onWheel={() => (pausedUntil.current = Date.now() + MANUAL_SCROLL_PAUSE_MS)}
+      onTouchMove={() => (pausedUntil.current = Date.now() + MANUAL_SCROLL_PAUSE_MS)}
+      className="relative h-[28rem] overflow-y-auto px-2 py-6"
+    >
+      {body}
     </div>
   )
 }

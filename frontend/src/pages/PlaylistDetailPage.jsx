@@ -6,6 +6,7 @@ import SongList from '../components/SongList.jsx'
 import { describeError } from '../lib/errors.js'
 import { fetchPlaylist, removeSongFromPlaylist, reorderPlaylist } from '../lib/playlists.js'
 import { useAuthStore } from '../store/authStore.js'
+import { usePlaySongs } from '../hooks/usePlaySongs.js'
 import { usePlayerStore } from '../store/playerStore.js'
 
 function Gone({ status }) {
@@ -32,7 +33,7 @@ export default function PlaylistDetailPage() {
   const { id } = useParams()
   const userId = useAuthStore((s) => s.user?.id)
   const queryClient = useQueryClient()
-  const playQueue = usePlayerStore((s) => s.playQueue)
+  const playSongs = usePlaySongs()
   const key = ['playlist', userId, id]
 
   const { data, error, isPending, isFetching, refetch } = useQuery({
@@ -115,7 +116,7 @@ export default function PlaylistDetailPage() {
               <button
                 type="button"
                 disabled={songs.length === 0}
-                onClick={() => playQueue(songs, 0)}
+                onClick={() => playSongs(songs, 0)}
                 className="mt-3 rounded-md bg-accent-500 px-4 py-2 font-medium text-zinc-950 hover:bg-accent-400 disabled:opacity-50"
               >
                 Putar semua
@@ -130,7 +131,7 @@ export default function PlaylistDetailPage() {
           ) : (
             <SongList
               songs={songs}
-              onPlay={(index) => playQueue(songs, index)}
+              onPlay={(index) => playSongs(songs, index)}
               renderAction={(song, index) => (
                 <div className="flex gap-1">
                   <button

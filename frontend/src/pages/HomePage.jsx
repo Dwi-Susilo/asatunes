@@ -3,11 +3,11 @@ import ErrorNotice from '../components/ErrorNotice.jsx'
 import SongList from '../components/SongList.jsx'
 import { fetchTrending } from '../lib/music.js'
 import { useAuthStore } from '../store/authStore.js'
-import { usePlayerStore } from '../store/playerStore.js'
+import { usePlaySongs } from '../hooks/usePlaySongs.js'
 
 export default function HomePage() {
   const user = useAuthStore((s) => s.user)
-  const playQueue = usePlayerStore((s) => s.playQueue)
+  const playSongs = usePlaySongs()
 
   const { data, error, isPending, isFetching, refetch } = useQuery({
     queryKey: ['trending'],
@@ -43,7 +43,7 @@ export default function HomePage() {
         {data && data.length === 0 && <p className="text-zinc-400">Belum ada lagu trending.</p>}
 
         {data && data.length > 0 && (
-          <SongList songs={data} onPlay={(index) => playQueue(data, index)} />
+          <SongList songs={data} onPlay={(index) => playSongs(data, index)} />
         )}
       </section>
     </div>

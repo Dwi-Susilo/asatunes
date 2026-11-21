@@ -71,6 +71,7 @@ export const usePlayerStore = create((set, get) => ({
   shuffle: false,
   repeat: 'off', // 'off' | 'all' | 'one'
   autoplay: readAutoplay(),
+  volume: 1, // 0..1, hanya untuk sesi ini
 
   playQueue(items, startIndex = 0) {
     if (!items.length) return
@@ -124,6 +125,17 @@ export const usePlayerStore = create((set, get) => ({
 
   cycleRepeat() {
     set({ repeat: REPEAT_CYCLE[get().repeat] })
+  },
+
+  setVolume(volume) {
+    set({ volume: Math.min(1, Math.max(0, volume)) })
+  },
+
+  // Loncat ke lagu pada posisi `pos` di urutan putar (daftar Antrean di halaman /putar).
+  playAt(pos) {
+    const { order } = get()
+    if (pos < 0 || pos >= order.length) return
+    set((s) => ({ pos, ...trackChange(s) }))
   },
 
   toggleAutoplay() {

@@ -6,6 +6,7 @@ import { usePlayerStore } from '../store/playerStore.js'
 import Avatar from './Avatar.jsx'
 import {
   HeartFilledIcon,
+  HistoryIcon,
   HomeIcon,
   LibraryIcon,
   PlusIcon,
@@ -23,6 +24,7 @@ const PUBLIC_NAV_ITEMS = [{ to: '/', label: 'Beranda', Icon: HomeIcon }]
 // Fitur akun: hanya tampil bila sudah login
 const ACCOUNT_NAV_ITEMS = [
   { to: '/favorit', label: 'Favorit', Icon: HeartFilledIcon },
+  { to: '/riwayat', label: 'Riwayat', Icon: HistoryIcon },
   { to: '/playlist', label: 'Playlist', Icon: LibraryIcon },
   { to: '/profil', label: 'Profil', Icon: UserIcon },
 ]

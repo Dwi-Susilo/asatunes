@@ -96,3 +96,21 @@ export const AutoplayIcon = (props) => (
     <path d="M4 6h12v2H4zM4 10h12v2H4zM4 14h8v2H4zM14 14v6l5-3-5-3z" />
   </Svg>
 )
+
+export const VolumeIcon = (props) => (
+  <Svg {...props}>
+    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.47 4.47 0 0 0 2.5-4zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+  </Svg>
+)
+
+export const ChevronUpIcon = (props) => (
+  <Svg {...props}>
+    <path d="m7.41 15.41 4.59-4.58 4.59 4.58L18 14l-6-6-6 6z" />
+  </Svg>
+)
+
+export const HistoryIcon = (props) => (
+  <Svg {...props}>
+    <path d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6a7 7 0 1 1 2.05 4.95l-1.42 1.42A9 9 0 1 0 13 3zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z" />
+  </Svg>
+)

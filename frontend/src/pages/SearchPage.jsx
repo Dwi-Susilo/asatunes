@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import ErrorNotice from '../components/ErrorNotice.jsx'
 import SongList from '../components/SongList.jsx'
 import { searchSongs } from '../lib/music.js'
-import { usePlayerStore } from '../store/playerStore.js'
+import { usePlaySongs } from '../hooks/usePlaySongs.js'
 
 const MIN_CHARS = 2
 
@@ -11,7 +11,7 @@ const MIN_CHARS = 2
 export default function SearchPage() {
   const [params] = useSearchParams()
   const q = (params.get('q') ?? '').trim()
-  const playQueue = usePlayerStore((s) => s.playQueue)
+  const playSongs = usePlaySongs()
 
   const enabled = q.length >= MIN_CHARS
   const { data, error, isFetching, refetch } = useQuery({
@@ -44,7 +44,7 @@ export default function SearchPage() {
       )}
 
       {enabled && data && data.length > 0 && (
-        <SongList songs={data} onPlay={(index) => playQueue(data, index)} />
+        <SongList songs={data} onPlay={(index) => playSongs(data, index)} />
       )}
     </div>
   )

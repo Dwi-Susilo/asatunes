@@ -67,6 +67,12 @@ export default function AudioPlayer() {
     return () => setAudioElement(null)
   }, [])
 
+  // Volume dari bilah pemutar (0..1); nilainya menempel di elemen audio antar lagu.
+  const volume = usePlayerStore((s) => s.volume)
+  useEffect(() => {
+    if (audioRef.current) audioRef.current.volume = volume
+  }, [volume])
+
   // Efek 1: setiap lagu aktif berganti (atau dimuat ulang lewat nonce), ambil play_url baru.
   useEffect(() => {
     const audio = audioRef.current

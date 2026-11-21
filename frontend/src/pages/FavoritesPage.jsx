@@ -1,11 +1,11 @@
 import ErrorNotice from '../components/ErrorNotice.jsx'
 import SongList from '../components/SongList.jsx'
 import { useFavorites } from '../hooks/useFavorites.js'
-import { usePlayerStore } from '../store/playerStore.js'
+import { usePlaySongs } from '../hooks/usePlaySongs.js'
 
 export default function FavoritesPage() {
   const { favorites, isPending, error, isFetching, refetch, isToggling, toggle } = useFavorites()
-  const playQueue = usePlayerStore((s) => s.playQueue)
+  const playSongs = usePlaySongs()
 
   return (
     <div className="space-y-4">
@@ -17,14 +17,14 @@ export default function FavoritesPage() {
 
       {!isPending && !error && favorites.length === 0 && (
         <p className="text-zinc-400">
-          Belum ada lagu favorit. Putar sebuah lagu lalu tekan ikon hati di bilah pemutar.
+          Belum ada lagu favorit. Putar sebuah lagu, lalu tekan ikon hati di halaman pemutar.
         </p>
       )}
 
       {favorites.length > 0 && (
         <SongList
           songs={favorites}
-          onPlay={(index) => playQueue(favorites, index)}
+          onPlay={(index) => playSongs(favorites, index)}
           renderAction={(song) => (
             <button
               type="button"
