@@ -1,0 +1,39 @@
+# ASATunes backend (Laravel). Disalin ke /etc/nginx/sites-available/asatunes oleh setup-server.sh.
+# __PHPVER__ diganti otomatis. HTTPS ditangani tunnel (atau Certbot).
+# Format log ikut mencatat X-Forwarded-For dan -Proto supaya kiriman tunnel bisa diperiksa.
+log_format asatunes '$remote_addr xff=$http_x_forwarded_for proto=$http_x_forwarded_proto '
+                    '"$request" $status $body_bytes_sent';
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name _;   # menerima nama apa pun: alamat publik tunnel, localhost, atau IP
+    access_log /var/log/nginx/asatunes.access.log asatunes;
+
+    root /var/www/asatunes/backend/public;
+    index index.php;
+
+    charset utf-8;
+    client_max_body_size 6m;   # unggah foto profil
+
+    add_header X-Content-Type-Options "nosniff" always;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location = /robots.txt  { access_log off; log_not_found off; }
+
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/run/php/php__PHPVER__-fpm.sock;
+        fastcgi_buffering off;        # audio dialirkan apa adanya, tidak ditampung dulu
+        fastcgi_read_timeout 300s;
+    }
+
+    # Berkas tersembunyi (.env, .git) tidak boleh terbaca
+    location ~ /\.(?!well-known) {
+        deny all;
+    }
+}
