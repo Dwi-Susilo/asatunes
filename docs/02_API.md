@@ -4,7 +4,7 @@ Versi dokumen: 1.3 (rev. 21 November 2026). Mengacu pada `01_SRS.md` v1.4.
 Mencerminkan backend Laravel sampai tahap B8 (72 tes otomatis lulus), termasuk mode Pengunjung.
 Perubahan dari 1.0: `proxy-audio` diganti URL audio bertanda tangan (`play_url`).
 Perubahan dari 1.1: endpoint baca musik terbuka untuk Pengunjung; `play_url` tidak lagi terikat ke pengguna; pembatas laju per IP untuk Pengunjung; pemutaran Pengunjung dicatat dengan `ip_address` (hash).
-Perubahan dari 1.2 (rev. 21 Nov 2026 menambah `GET /music/{youtube_id}/related`, bagian 6.7; backend tahap B9, 77 tes): istilah Tamu menjadi Pengunjung dan User menjadi Pengguna (objek **User** dan nilai `role` tidak berubah); ditambahkan `POST /auth/forgot-password`, `POST /auth/reset-password` (D13) dan `GET /history` (D14); akun `blocked` tetap tidak dapat login (D12); server tidak menolak Registrasi, Login, dan Lupa password bagi pemegang token (D16); endpoint musik terbuka mengenali token valid sebagai Pengguna (K1).
+Perubahan dari 1.2 (rev. 21 Nov 2026 menambah `GET /music/{youtube_id}/related`, bagian 6.7; backend tahap B9; tahap B10 menambah dukungan proxy tepercaya lewat `TRUSTED_PROXIES`, 81 tes): istilah Tamu menjadi Pengunjung dan User menjadi Pengguna (objek **User** dan nilai `role` tidak berubah); ditambahkan `POST /auth/forgot-password`, `POST /auth/reset-password` (D13) dan `GET /history` (D14); akun `blocked` tetap tidak dapat login (D12); server tidak menolak Registrasi, Login, dan Lupa password bagi pemegang token (D16); endpoint musik terbuka mengenali token valid sebagai Pengguna (K1).
 
 ---
 
@@ -426,4 +426,4 @@ Aturan bisnis (dijawab `422`):
 6. **Jadwal** (`trending:refresh` Senin 03:00, `ytdlp:update` Minggu 03:30) mengikuti zona waktu aplikasi (UTC).
 7. **Mode Pengunjung (sudah dibangun).** Endpoint musik terbuka tanpa token, `play_url` tanpa pemilik, pembatas per IP, dan kolom `song_plays.ip_address` (hash HMAC-SHA256, dikosongkan setelah 1 hari). Backend mengimplementasikannya pada tahap B1 sampai B5. Slot yt-dlp dipakai bersama tanpa jatah khusus (D11).
 8. **Lupa password dan riwayat lagu diputar (sudah dibangun).** Kontraknya ada di bagian 4 (Lupa password) dan 7 (Riwayat); backend pada tahap B6 sampai B8. D12, D13, D14, D15, D16, dan K1 sudah diputuskan (lihat riwayat revisi SRS).
-9. **Masih terbuka (SRS bagian 8):** D1 sampai D7 dan D17 sampai D18. Header `Retry-After` pada respons `429` belum dapat dibaca klien lintas origin (belum termasuk daftar header CORS yang diekspos di 1.6).
+9. **Masih terbuka (SRS bagian 8):** D1 sampai D7. Header `Retry-After` pada respons `429` belum dapat dibaca klien lintas origin (belum termasuk daftar header CORS yang diekspos di 1.6).
